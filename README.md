@@ -1,1 +1,2 @@
-# QuantumCircuitOptimizer
+# Quantum Circuit Optimizer
+
