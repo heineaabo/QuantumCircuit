@@ -1,4 +1,5 @@
 from gates import *
+from printer import *
 
 class Qubit:
     def __init__(self,name='q'):
@@ -7,20 +8,27 @@ class Qubit:
 
     def act(self,O,ctrl_pos=0):
         appended = False
-        if len(self.circ) == 0:# or ctrl_pos == len(self.circ):
+        if len(self.circ) == 0 or ctrl_pos == len(self.circ):
             self.circ.append(O)
             appended = True
         elif self.all_Identity():
-            self.circ[0] = O
-
+            self.circ[ctrl_pos] = O
         else:
             for i in reversed(range(ctrl_pos,len(self.circ))):
+                # If last entry
                 if isinstance(self.circ[i],Id):
-                    continue
+                    if i == len(self.circ)-1:
+                        self.circ[i] = O
+                        break
+                    else:
+                        continue
                 else:
                     if i == len(self.circ)-1:
                         self.circ.append(O)
                         appended = True
+                        break
+                    if i == ctrl_pos:
+                        self.circ[i+1] = O 
                         break
                     else:
                         self.circ[i+1] = O
@@ -38,137 +46,74 @@ class Qubit:
         return b
     
     def single_gate_optimization(self):
-        for i in range(len(self.circ)-1):
-            if type(self.circ[i]) == type(self.circ[i+1]) and\
-               type(self.circ[i]) != type(Id()):
-                self.circ[i] = Id()
-                self.circ[i+1] = Id()
+        last_gate = None
+        last_gate_index = None
+        last_identity = False
+        for i in range(0,len(self.circ)):
+            if not isinstance(self.circ[i],Id):
+                if type(self.circ[i]) == last_gate and last_gate_index != None:
+                    self.circ[i] = Id()
+                    self.circ[last_gate_index] = Id()
+                    last_gate_index = None
+                    last_gate = None
+                else:
+                    last_gate = type(self.circ[i])
+                    last_gate_index = i
 
     def remove(self,operations):
         for o in reversed(operations):
             self.circ.pop(o)
+    
+    def count_and_move(self,a,b):
+        """
+        Count number of identity gates in interval [a,b].
+        Then Move all gates to its left-most controlled operation (or start).
+        """
+        Ids = []
+        non_Ids = []
+        count = 0
+        # Count number ofi identity and non-identity gates
+        for i in range(a,b):
+            if isinstance(self.circ[i],Id):
+                Ids.append(i)
+            else:
+                non_Ids.append(i)
+                count += 1
+        # If identity gates move all other gates
+        if len(Ids) > 0:
+            j = 0
+            next_available = Ids[j]
+            for i in non_Ids:
+                if i <= next_available:
+                    continue
+                else:
+                    # Swap elements
+                    self.circ[i],self.circ[next_available] = self.circ[next_available], self.circ[i]
+                    j += 1
+                    if len(Ids[j:]) > 0:
+                        if i < Ids[j]:
+                            next_available = i
+                        else:
+                            z = Ids[j]
+                            next_available = z
+        return count
+
+    def move_gates(self,a,b,n):
+        """
+        Move n number of gates to a and up.
+        """
+        for i in range(a,b):
+            if isinstance(self.circ[i],Id):
+                pass
+                
+
 
     def __repr__(self):
         return str(self.circ)
 
     def __str__(self):
-        return self.print_gates()
+        return Printer(self).print_gates()
 
-    # PRINT
     def print_gates(self,control_list=None,q=None):
-        rt = '┐'
-        lt = '┌'
-        lb = '└'
-        rb = '┘'
-        rv = '├' 
-        lv = '┤'
-        h  = '─'
-        v  = '│'
-        s  = ' '
-        mb = '┬'
-        mt = '┴'
-        crs  = '┼'
-        tdot = '⫯' #\u2AEF
-        bdot = '⫰' #\u2AF0
-        dot = '\u25CF'
-        str_top = s*(len(self.name)+3)
-        str_mid = '\u2758{}\u27E9 '.format(self.name)
-        str_bot = s*(len(self.name)+3)
-        for i,elem in enumerate(self.circ):
-            if control_list == None:
-                if isinstance(elem,Id):
-                    top,mid,bot = self._print_no_gate()
-                else:
-                    top,mid,bot = self._print_gate(elem)
-            else:
-                if isinstance(control_list[i],Id):
-                    if isinstance(elem,Id):
-                        top,mid,bot = self._print_no_gate()
-                    else:
-                        top,mid,bot = self._print_gate(elem)
-                else:
-                    ctrl, targ = control_list[i].get_connections()
-                    gate = control_list[i].gate
-                    if isinstance(elem,CTRL):
-                        top,mid,bot = self._print_ctrl()
-                    elif isinstance(elem,TARG):
-                        top,mid,bot = self._print_targ(gate)
-                    elif q > ctrl and q < targ:
-                        top,mid,bot = self._print_control_pass()
-                    else:
-                        top,mid,bot = self._print_no_gate()
-            str_top += top
-            str_mid += mid
-            str_bot += bot
+        return Printer(self).print_gates(control_list,q)
 
-        str_top += s
-        str_mid += h
-        str_bot += s
-        return str_top+'\n'+str_mid+'\n'+str_bot
-
-    def _print_no_gate(self):
-        s = ' '
-        h = '─'
-        top = s+s+s+s+s+s+s
-        mid = h+h+h+h+h+h+h
-        bot = s+s+s+s+s+s+s
-        return top,mid,bot
-
-    def _print_gate(self,gate):
-        rt = '┐'
-        lt = '┌'
-        lb = '└'
-        rb = '┘'
-        rv = '├' 
-        lv = '┤'
-        h  = '─'
-        s  = ' '
-        top = s+lt+h+h+h+rt+s
-        mid = h+lv+s+gate.char.upper()+s+rv+h
-        bot = s+lb+h+h+h+rb+s
-        return top,mid,bot
-    
-    def _print_ctrl(self):
-        h  = '─'
-        s  = ' '
-        v = '│'
-        tdot = '\u25CF'
-        top = s+s+s+s+s+s+s
-        mid = h+h+h+tdot+h+h+h
-        bot = s+s+s+v+s+s+s
-        return top,mid,bot
-
-    def _print_targ(self,gate):
-        rt = '┐'
-        lt = '┌'
-        lb = '└'
-        rb = '┘'
-        rv = '├' 
-        lv = '┤'
-        h  = '─'
-        v  = '│'
-        s  = ' '
-        mt = '┴'
-        char = gate.char.upper()
-        top = s+lt+h+mt+h+rt+s
-        mid = h+lv+s+char+s+rv+h
-        bot = s+lb+h+h+h+rb+s
-        if isinstance(gate,X):
-            char = '\u2A01'
-            top = s+s+s+v+s+s+s
-            mid = h+h+h+char+h+h+h
-            bot = s+s+s+s+s+s+s
-        return top,mid,bot
-
-    def _print_control_pass(self):
-        """
-        If control operation in circuit but not on qubit
-        """
-        h  = '─'
-        s  = ' '
-        v = '│'
-        crs  = '┼'
-        top = s+s+s+v+s+s+s
-        mid = h+h+h+crs+h+h+h
-        bot = s+s+s+v+s+s+s
-        return top,mid,bot

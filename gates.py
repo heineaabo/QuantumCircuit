@@ -15,13 +15,13 @@ class Gate:
         else:
             return False
 
-    #def __mul__(self,other):
-    #    if type(self) == type(other):
-    #        return Identity()
+    def __mul__(self,other):
+        if type(self) == type(other):
+            return Identity()
 
-    #def copy(self):
-    #    return deepcopy(self)
-    #
+    def copy(self):
+        return deepcopy(self)
+    
     def __repr__(self):
         return '{}{}'.format('i' if self.factor.imag != 0 else '',self.char.upper())
 
@@ -194,7 +194,7 @@ class CTRL(Gate):
     def __init__(self,targ):
         super().__init__()
         self.connection = targ
-        self.char = '\u2A00'
+        self.char = '\u2A00 '
 
 class TARG(Gate):
     def __init__(self,ctrl,gate):
@@ -202,7 +202,7 @@ class TARG(Gate):
         self.connection = ctrl
         self.gate = gate
         if type(self.gate) == type(X()):
-            self.char = '\u2A01'
+            self.char = '\u2A01 '
         else:
             self.char = self.gate.char
 
