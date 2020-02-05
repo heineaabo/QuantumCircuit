@@ -72,9 +72,21 @@ class Printer:
         lv = '┤'
         h  = '─'
         s  = ' '
-        top = s+lt+h+h+h+rt+s
-        mid = h+lv+s+gate.char.upper()+s+rv+h
-        bot = s+lb+h+h+h+rb+s
+        top = s+lt+h#+h+h+rt+s
+        mid = h+lv+s#+gate.char.upper()+s+rv+h
+        bot = s+lb+h#+h+h+rb+s
+
+        #for i in range(len(gate.char)):
+        #    top += h
+        #    bot += h
+        #mid += gate.char.upper()
+        top += h
+        mid += gate.char[-1].lower()
+        bot += h
+
+        top += h+rt+s
+        mid += s+rv+h
+        bot += h+rb+s
         return top,mid,bot
     
     def _print_ctrl(self):

@@ -1,5 +1,7 @@
 import numpy as np
 from copy import deepcopy
+from qiskit.extensions.standard import IdGate, XGate, YGate, ZGate, HGate,\
+                                       RXGate, RYGate, RZGate, CnotGate
 
 class Gate:
     def __init__(self):
@@ -21,6 +23,9 @@ class Gate:
 
     def copy(self):
         return deepcopy(self)
+
+    def dagger(self):
+        return self
     
     def __repr__(self):
         return '{}{}'.format('i' if self.factor.imag != 0 else '',self.char.upper())
@@ -39,6 +44,9 @@ class Id(OneQubitGate):
         super().__init__()
         self.factor = 1
         self.char = 'I'
+
+    def get_qiskit(self):
+        return IdGate()
 
     def __mul__(self,other):
         return other.copy()
@@ -87,21 +95,35 @@ class X(Pauli):
     def __init__(self):
         super().__init__()
         self.char = 'X'
+    
+    def get_qiskit(self):
+        return XGate()
 
 class Y(Pauli):
     def __init__(self):
         super().__init__()
         self.char = 'Y'
 
+    def get_qiskit(self):
+        return YGate()
+
 class Z(Pauli):
     def __init__(self):
         super().__init__()
         self.char = 'Z'
 
+    def get_qiskit(self):
+        return ZGate()
+
+
 class H(OneQubitGate):
     def __init__(self):
         super().__init__()
         self.char = 'H'
+
+    def get_qiskit(self):
+        return HGate()
+
 
 # ROTATION GATES
 class RotationGate(OneQubitGate):
@@ -130,7 +152,11 @@ class Rx(RotationGate):
         self.axis = 'x'
         self.char = 'Rx'
         self.phi = phi
-        self.dagger = dagger
+        #self.dagger = dagger
+
+    def get_qiskit(self):
+        return RXGate()
+
 
 class Ry(RotationGate):
     """
@@ -142,7 +168,10 @@ class Ry(RotationGate):
         self.axis = 'y'
         self.char = 'Ry'
         self.phi = phi
-        self.dagger = dagger
+        #self.dagger = dagger
+
+    def get_qiskit(self):
+        return RYGate()
 
 class Rz(RotationGate):
     """
@@ -154,7 +183,10 @@ class Rz(RotationGate):
         self.axis = 'z'
         self.char = 'Rz'
         self.phi = phi
-        self.dagger = dagger
+        #self.dagger = dagger
+
+    def get_qiskit(self):
+        return RZGate()
 
 # Jordan-Wigner
 class Create(Gate):
@@ -179,6 +211,10 @@ class ControlGate(Gate):
 
     def get_connections(self):
         return self.ctrl, self.targ
+
+    def get_qiskit(self):
+        if isinstance(self.gate,X):
+            return CnotGate()
 
     def __eq__(self,other):
         eq_val = False

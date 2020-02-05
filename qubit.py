@@ -51,7 +51,9 @@ class Qubit:
         last_identity = False
         for i in range(0,len(self.circ)):
             if not isinstance(self.circ[i],Id):
-                if type(self.circ[i]) == last_gate and last_gate_index != None:
+                if type(self.circ[i]) == last_gate and last_gate_index != None\
+                and not isinstance(self.circ[i],(CTRL,TARG)):
+                    print(self.circ[i])
                     self.circ[i] = Id()
                     self.circ[last_gate_index] = Id()
                     last_gate_index = None
