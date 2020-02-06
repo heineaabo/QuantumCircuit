@@ -215,6 +215,20 @@ class QuantumCircuit:
                 ctrl,targ = elem.get_connections()
                 qc.append(elem.get_qiskit(),[ctrl,targ],[])
         return qc,qb,cb
+
+    def __add__(self,other):
+        """
+        Combine two qunatum circuits.
+        """
+        if isinstance(other,QuantumCircuit):
+            if len(self.mat) == len(other.mat):
+                for i in range(len(self.mat)):
+                    self.mat[i] += other.mat[i]
+                self.min_ctrl = len(self.control_circuit) + other.min_ctrl
+                self.control_circuit += other.control_circuit
+                self.factor *= other.factor
+                
+                return self
         
 
     def __repr__(self):

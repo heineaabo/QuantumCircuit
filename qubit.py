@@ -108,7 +108,13 @@ class Qubit:
             if isinstance(self.circ[i],Id):
                 pass
                 
-
+    def __add__(self,other):
+        """
+        Combine circuit of two qubits.
+        """
+        if isinstance(other,Qubit):
+            self.circ += other.circ            
+            return self
 
     def __repr__(self):
         return str(self.circ)
