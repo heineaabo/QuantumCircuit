@@ -4,10 +4,12 @@ import qiskit as qk
 from gates import *
 from qubit import *
 from optimizer import *
+from jordan_wigner import simple_remove_z
 from copy import deepcopy
 
 class QuantumCircuit:
     def __init__(self,n):
+        self.n_qubits = n
         self.mat = [Qubit(name=str(i)) for i in range(n)]
         self.control_circuit = []
         self.min_ctrl = 0 #Position of last controlled operation
@@ -22,7 +24,7 @@ class QuantumCircuit:
         if isinstance(O,ControlGate):
             if pos == None:
                 ctrl,targ = O.get_connections()
-                for j in range(len(self.mat)):
+                for j in range(self.n_qubits):
                     self.mat[j].Identity()
                 self.mat[ctrl].circ[-1] = CTRL(targ)
                 self.mat[targ].circ[-1] = TARG(ctrl,O.gate)
@@ -30,7 +32,7 @@ class QuantumCircuit:
                 self.min_ctrl = len(self.control_circuit)
             else:
                 ctrl,targ = O.get_connections()
-                for j in range(len(self.mat)):
+                for j in range(self.n_qubits):
                     self.mat[j].Identity()
                 self.mat[ctrl].circ.insert(pos,(CTRL(targ)))
                 self.mat[ctrl].circ.insert(pos,(TARG(ctrl,O.gate)))
@@ -48,13 +50,13 @@ class QuantumCircuit:
         assert len(self.control_circuit) == len(self.mat[0].circ)
         if pos == None:
             if self.mat[i].act(O,self.min_ctrl):
-                for j in range(len(self.mat)):
+                for j in range(self.n_qubits):
                     if j != i:
                         self.mat[j].Identity()
                 self.control_circuit.append(Id())
         else:
             self.mat[i].circ.insert(pos,O)
-            for j in range(len(self.mat)):
+            for j in range(self.n_qubits):
                 if j != i:
                     self.mat[j].circ.insert(pos,Id())
             self.control_circuit.insert(pos,Id())
@@ -64,7 +66,7 @@ class QuantumCircuit:
         """
         Add Jordan-Wigner transformed creation operator to qubit l.
         """
-        n = len(self.mat)
+        n = self.n_qubits
         assert l < n
         if l > 0:
             for i in range(l):
@@ -75,26 +77,32 @@ class QuantumCircuit:
         """
         Add Jordan-Wigner transformed annihilation operator to qubit l.
         """
-        n = len(self.mat)
+        n = self.n_qubits
         assert l < n
         if l > 0:
             for i in range(l):
                 self.add_gate(Z(),i)
         self.add_gate(Annihilate(),l)
 
-    def optimize(self):
+    def optimize(self,jw=False):
+        """
+        input jw (bool) - If to add simple z removal for jw- transformation
+        """
         self = Optimizer(self).run()
+        if jw:
+            for i in range(self.n_qubits):
+                self.mat[i] = simple_remove_z(self.mat[i])
                 
     def check_all_identity(self,d):
         check = True
-        for i in range(len(self.mat)):
+        for i in range(self.n_qubits):
             if not isinstance(self.mat[i][d],Id):
                 check = False
         return check
 
     def check_ladder(self):
         check = False
-        for i in range(len(self.mat)):
+        for i in range(self.n_qubits):
             for j in range(len(self.mat[i].circ)):
                 if isinstance(self.mat[i].circ[j],(Create,Annihilate)):
                     check = True
@@ -109,7 +117,7 @@ class QuantumCircuit:
             Change so it transforms all ladder operators in one call.
         """
         break_bool = False # To break out of first loop
-        for i in range(len(self.mat)):
+        for i in range(self.n_qubits):
             for j in range(len(self.mat[i].circ)):
                 if isinstance(self.mat[i].circ[j],Create):
                     new_circ = self.copy()
@@ -131,7 +139,7 @@ class QuantumCircuit:
 
     def transform_to_pauli_z(self,exponent=False):
         if not exponent:
-            for i in range(len(self.mat)):
+            for i in range(self.n_qubits):
                 for j in range(len(self.mat[i].circ)):
                     gate = self.mat[i].circ[j]
                     if isinstance(gate,X):
@@ -201,13 +209,13 @@ class QuantumCircuit:
 
     def to_qiskit(self,qc=None,qb=None,cb=None):
         if qc == None and qb == None and cb == None:
-            qb = qk.QuantumRegister(len(self.mat))
-            cb = qk.ClassicalRegister(len(self.mat))
+            qb = qk.QuantumRegister(self.n_qubits)
+            cb = qk.ClassicalRegister(self.n_qubits)
             qc = qk.QuantumCircuit(qb,cb)
         
         for j,elem in enumerate(self.control_circuit):
             if isinstance(elem,Id):
-                for i in range(len(self.mat)):
+                for i in range(self.n_qubits):
                     gate = self.mat[i].circ[j]
                     if not isinstance(gate,Id):
                         qc.append(gate.get_qiskit(),[i],[])
@@ -221,8 +229,8 @@ class QuantumCircuit:
         Combine two qunatum circuits.
         """
         if isinstance(other,QuantumCircuit):
-            if len(self.mat) == len(other.mat):
-                for i in range(len(self.mat)):
+            if self.n_qubits == other.n_qubits:
+                for i in range(self.n_qubits):
                     self.mat[i] += other.mat[i]
                 self.min_ctrl = len(self.control_circuit) + other.min_ctrl
                 self.control_circuit += other.control_circuit
@@ -246,10 +254,10 @@ class QuantumCircuit:
         else:
             return False
         #if isinstance(other,QuantumCircuit):
-        #    if len(other.mat) == len(self.mat) and self.factor == other.factor\
+        #    if other.n_qubits == self.n_qubits and self.factor == other.factor\
         #    and len(self.control_circuit) == len(other.control_circuit):
         #        check = True
-        #        for i in range(len(self.mat)):
+        #        for i in range(self.n_qubits):
         #            for j in range(len(self.mat[i].circ)):
         #                if type(self.mat[i].circ[j]) == type(other.mat[i].circ[j]):
         #                    continue

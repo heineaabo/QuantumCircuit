@@ -2,6 +2,7 @@ from qubit import *
 from gates import *
 from register import QuantumRegister
 from printer import Printer
+from tools import get_permutations
 
 from copy import deepcopy
 
@@ -43,17 +44,31 @@ class QuantumCircuit:
     def copy(self):
         return deepcopy(self)
 
+    def gate_optimization(self):
+        self.register.optimize()
+
     def optimize(self):
         self.check_ladder()
     
     def transform_ladder(self):
         info = self.register.check_ladder()
         num = 0 # Number of new 
+        each_ladder = []
         for elem in info:
-            num += len(elem[1:])
-        copies = [self.copy() for i in range(num)]
-        combinations = 
-
+            i = elem[0]
+            for j in elem[1]:
+                num += 1
+                each_ladder.append([i,j])
+        copies = [self.copy() for i in range(2**num)]
+        perms = get_permutations(num)
+        assert len(copies) == len(perms)
+        for perm,circ in zip(perms,copies):
+            for j,gate in enumerate(perm):
+                qbit = each_ladder[j][0]
+                ind = each_ladder[j][1]
+                gate.factor *= circ.register[qbit].circ[ind].factor
+                circ.register[qbit].circ[ind] = gate
+        return copies
 
     def insert_pauli_string(self,string,exp=False,coefficient=1):
         """

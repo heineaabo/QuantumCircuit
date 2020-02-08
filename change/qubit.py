@@ -14,11 +14,11 @@ class Qubit:
             
     def optimize(self):
         new = [self.circ[0]]
+        print(self.circ)
         for i in range(1,len(self.circ)):
             gate1 = new[-1]
             gate2 = self.circ[i]
             gate = gate1*gate2
-            #print('Iteration {}; {} * {} = {}; '.format(i,gate1,gate2,gate),end='')
             if isinstance(gate,Gate):
                 new[-1] = gate
             elif isinstance(gate,tuple):
@@ -26,7 +26,7 @@ class Qubit:
                 new.append(gate[1])
             elif isinstance(gate,list):
                 # Dont transform
-                new.append(gate1)
+                new.append(gate2)
             else:
                 raise ValueError('WRONG')
         self.circ = new
