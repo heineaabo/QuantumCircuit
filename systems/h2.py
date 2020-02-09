@@ -7,8 +7,10 @@ from openfermion.transforms import get_fermion_operator, get_sparse_operator, jo
 from openfermion.utils import get_ground_state
 from openfermionpsi4 import run_psi4
 
-from hamiltonian import Hamiltonian
-from tools import molecular2sec_quant
+import sys
+sys.path.append('..')
+from quantum_circuit import Hamiltonian, QuantumCircuit
+from quantum_circuit.utils import molecular2sec_quant
 
 R = 0.7
 

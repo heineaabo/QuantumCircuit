@@ -1,5 +1,5 @@
 import numpy as np
-#from circuit import QuantumCircuit
+from .circuit import QuantumCircuit
 
 class Hamiltonian:
     """

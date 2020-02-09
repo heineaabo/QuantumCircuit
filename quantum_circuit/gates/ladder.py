@@ -1,4 +1,7 @@
 from .gate import Gate
+from .pauli import X,Y,Z,Pauli
+from .identity import I
+from .hadamard import H
 
 ##################################################################################
 #                       Info on implementation                                   #

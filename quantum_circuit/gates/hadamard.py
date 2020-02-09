@@ -1,4 +1,5 @@
 from .gate import Gate
+from .identity import I
 from qiskit.extensions.standard import HGate
 
 ##################################################################################

@@ -1,5 +1,5 @@
 import numpy as np
-from quantum_circuit.gates import X,Y
+from quantum_circuit.gates.pauli import X,Y
 
 
 def get_permutations(n):
