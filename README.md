@@ -6,3 +6,4 @@ TODO:
   - Add control gates
   - Add rotation gates
   - Add gate transformations
+  - Add psi4 handling to get integrals
