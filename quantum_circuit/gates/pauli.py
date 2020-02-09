@@ -39,6 +39,11 @@ class X(Gate):
         if type(self) == type(other):
             new = I(factor=self.factor*other.factor)
             return new
+
+    def __rmul__(self,other):
+        if isinstance(other,(int,float,complex)):
+            self.factor *= other
+            return self
     
     def get_qiskit(self):
         return XGate()
@@ -68,6 +73,11 @@ class Y(Gate):
             new = I(factor=self.factor*other.factor)
             return new
 
+    def __rmul__(self,other):
+        if isinstance(other,(int,float,complex)):
+            self.factor *= other
+            return self
+
     def get_qiskit(self):
         return YGate()
 
@@ -95,6 +105,11 @@ class Z(Gate):
         if type(self) == type(other):
             new = I(factor=self.factor*other.factor)
             return new
+
+    def __rmul__(self,other):
+        if isinstance(other,(int,float,complex)):
+            self.factor *= other
+            return self
 
     def get_qiskit(self):
         return ZGate()

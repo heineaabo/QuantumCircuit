@@ -2,7 +2,6 @@ import sys
 sys.path.append('..')
 from quantum_circuit import *
 
-
 ### With int,float,complex
 first = I()
 first.factor *= 2

@@ -13,3 +13,10 @@ class Zero(Gate):
     def __init__(self):
         super().__init__()
         self.factor = 0
+        self.char = '0'
+
+    def __mul__(self,other):
+        return self
+
+    def __rmul__(self,other):
+        return self
