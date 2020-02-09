@@ -1,4 +1,6 @@
 #import numpy as np
+from qiskit.extensions.standard import IdGate, XGate, YGate, ZGate, HGate,\
+                                       RXGate, RYGate, RZGate, CnotGate
 
 ##################################################################################
 #                       Info on implementation                                   #
@@ -111,17 +113,25 @@ class X(Pauli):
     def __init__(self,factor=complex(1,0)):
         super().__init__(factor)
         self.char = 'X'
+    
+    def get_qiskit(self):
+        return XGate()
 
 class Y(Pauli):
     def __init__(self,factor=complex(1,0)):
         super().__init__(factor)
         self.char = 'Y'
 
+    def get_qiskit(self):
+        return YGate()
+
 class Z(Pauli):
     def __init__(self,factor=complex(1,0)):
         super().__init__(factor)
         self.char = 'Z'
 
+    def get_qiskit(self):
+        return ZGate()
 
 class H(Gate):
     def __init__(self,factor=complex(1,0)):
@@ -153,6 +163,10 @@ class H(Gate):
                 return (other,self)
         else:
             raise ValueError('Can not multiply instance {} with instance {}'.format(type(self),type(other)))
+
+    def get_qiskit(self):
+        return HGate()
+
 
 class Ladder(Gate):
     def __init__(self,factor=complex(1,0)):
@@ -188,6 +202,11 @@ class Creation(Ladder):
                 return self
         if isinstance(other,H):
             return (self,other)
+
+    def __rmul__(self,other):
+        if isinstance(other,Z):
+            self.factor *= other.factor
+            return self
 
     def transform(self):
         x = X(factor=0.5*self.factor)
@@ -226,6 +245,12 @@ class Annihilation(Ladder):
                 return self
         if isinstance(other,H):
             return (self,other)
+
+    def __rmul__(self,other):
+        if isinstance(other,Z):
+            self.factor *= -other.factor
+            return self
+
 
     def transform(self):
         x = X(factor=0.5*self.factor)

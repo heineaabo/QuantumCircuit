@@ -1,4 +1,4 @@
-from gates import *
+from quantum_circuit.gates import Gate,Creation,Annihilation
 
 class Qubit:
     def __init__(self,name='q'):
@@ -13,22 +13,24 @@ class Qubit:
             self.circ.insert(0,gate)
             
     def optimize(self):
-        new = [self.circ[0]]
-        for i in range(1,len(self.circ)):
-            gate1 = new[-1]
-            gate2 = self.circ[i]
-            gate = gate1*gate2
-            if isinstance(gate,Gate):
-                new[-1] = gate
-            elif isinstance(gate,tuple):
-                new[-1] = gate[0]
-                new.append(gate[1])
-            elif isinstance(gate,list):
-                # Dont transform
-                new.append(gate2)
-            else:
-                raise ValueError('WRONG')
-        self.circ = new
+        if len(self.circ) > 0:
+            new = [self.circ[0]]
+            for i in range(1,len(self.circ)):
+                gate1 = new[-1]
+                gate2 = self.circ[i]
+                gate = gate1*gate2
+                if isinstance(gate,Gate):
+                    new[-1] = gate
+                elif isinstance(gate,tuple):
+                    new[-1] = gate[0]
+                    new.append(gate[1])
+                elif isinstance(gate,list):
+                    # Dont transform
+                    new.append(gate2)
+                else:
+                    #print(gate,gate1,gate2,new,self.circ,self.name)
+                    raise ValueError('WRONG')
+            self.circ = new
 
     def defactor(self):
         for i in range(len(self.circ)):

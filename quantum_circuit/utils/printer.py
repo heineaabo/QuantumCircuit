@@ -1,4 +1,3 @@
-from gates import *
 
 class Printer:
     """

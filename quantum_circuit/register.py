@@ -1,5 +1,5 @@
-from qubit import Qubit
-from gates import *
+from .qubit import Qubit
+from quantum_circuit.gates import Z,Creation,Annihilation
 
 class QuantumRegister:
     """
