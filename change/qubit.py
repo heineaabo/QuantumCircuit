@@ -14,7 +14,6 @@ class Qubit:
             
     def optimize(self):
         new = [self.circ[0]]
-        print(self.circ)
         for i in range(1,len(self.circ)):
             gate1 = new[-1]
             gate2 = self.circ[i]
