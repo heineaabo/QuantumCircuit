@@ -1,5 +1,4 @@
 from .gate import Gate
-from .identity import I
 from qiskit.extensions.standard import HGate
 
 ##################################################################################
@@ -45,4 +44,5 @@ class H(Gate):
     def get_qiskit(self):
         return HGate()
 
-
+# Necessary imports
+from .identity import I

@@ -1,6 +1,5 @@
 from .gate import Gate
-from .identity import I
-from .hadamard import H
+from qiskit.extensions.standard import XGate,YGate,ZGate
 
 ##################################################################################
 #                       Info on implementation                                   #
@@ -39,6 +38,14 @@ class X(Gate):
         if type(self) == type(other):
             new = I(factor=self.factor*other.factor)
             return new
+        if isinstance(other,Creation):
+            Id = I(factor=0.5*self.factor * other.factor)
+            z = Z(factor=-0.5*self.factor * other.factor)
+            return [Id,z]
+        if isinstance(other,Annihilation):
+            Id = I(factor=0.5*self.factor*other.factor)
+            z = Z(factor=0.5*self.factor*other.factor)
+            return [Id,z]
 
     def __rmul__(self,other):
         if isinstance(other,(int,float,complex)):
@@ -72,6 +79,14 @@ class Y(Gate):
         if type(self) == type(other):
             new = I(factor=self.factor*other.factor)
             return new
+        if isinstance(other,Creation):
+            Id = I(factor=-0.5*complex(0,1)*self.factor * other.factor)
+            z = Z(factor=0.5*complex(0,1)*self.factor * other.factor)
+            return [Id,z]
+        if isinstance(other,Annihilation):
+            Id = I(factor=0.5*complex(0,1)*self.factor*other.factor)
+            z = Z(factor=0.5*complex(0,1)*self.factor*other.factor)
+            return [Id,z]
 
     def __rmul__(self,other):
         if isinstance(other,(int,float,complex)):
@@ -105,6 +120,12 @@ class Z(Gate):
         if type(self) == type(other):
             new = I(factor=self.factor*other.factor)
             return new
+        if isinstance(other,Creation):
+            other.factor *= self.factor
+            return other
+        if isinstance(other,Annihilation):
+            other.factor *= -self.factor
+            return other
 
     def __rmul__(self,other):
         if isinstance(other,(int,float,complex)):
@@ -113,3 +134,8 @@ class Z(Gate):
 
     def get_qiskit(self):
         return ZGate()
+
+# Necessary import
+from .ladder import Creation,Annihilation
+from .identity import I
+from .hadamard import H

@@ -1,8 +1,4 @@
 from .gate import Gate
-from .pauli import X,Y,Z,Pauli
-from .identity import I
-from .hadamard import H
-from .zero import Zero
 
 ##################################################################################
 #                       Info on implementation                                   #
@@ -48,9 +44,19 @@ class Creation(Ladder):
             return (self,other)
 
     def __rmul__(self,other):
+        if isinstance(other,X):
+            Id = I(factor=0.5*self.factor * other.factor)
+            z = Z(factor=-0.5*self.factor * other.factor)
+            return [Id,z]
+        if isinstance(other,Y):
+            Id = I(factor=-0.5*complex(0,1)*self.factor * other.factor)
+            z = Z(factor=0.5*complex(0,1)*self.factor * other.factor)
+            return [Id,z]
         if isinstance(other,Z):
             self.factor *= other.factor
             return self
+        if isinstance(other,H):
+            return (other,self)
         if isinstance(other,(int,float,complex)):
             self.factor *= other
             return self
@@ -93,9 +99,19 @@ class Annihilation(Ladder):
             return (self,other)
 
     def __rmul__(self,other):
+        if isinstance(other,X):
+            Id = I(factor=0.5*self.factor*other.factor)
+            z = Z(factor=0.5*self.factor*other.factor)
+            return [Id,z]
+        if isinstance(other,Y):
+            Id = I(factor=0.5*complex(0,1)*self.factor*other.factor)
+            z = Z(factor=0.5*complex(0,1)*self.factor*other.factor)
+            return [Id,z]
         if isinstance(other,Z):
             self.factor *= -other.factor
             return self
+        if isinstance(other,H):
+            return (other,self)
         if isinstance(other,(int,float,complex)):
             self.factor *= other
             return self
@@ -106,3 +122,8 @@ class Annihilation(Ladder):
         y = Y(factor=0.5*complex(0,1)*self.factor)
         return [x,y]
 
+# Necessary imports
+from .pauli import X,Y,Z
+from .identity import I
+from .hadamard import H
+from .zero import Zero
