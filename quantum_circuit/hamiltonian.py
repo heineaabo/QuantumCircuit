@@ -22,7 +22,7 @@ class Hamiltonian:
     def get_circuit(self):
         circuits = []
         # Add nuclear repulsion as empty circuit
-        if not nuclear_repulsion is None:
+        if not self.nuclear_repulsion is None:
             rep = QuantumCircuit(self.l)
             rep.factor = self.nuclear_repulsion
             circuits.append(rep)
