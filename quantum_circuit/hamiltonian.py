@@ -14,7 +14,7 @@ class Hamiltonian:
         self.l = l
         self.circuit = []
 
-    def set_integrals(self,one_body,two_body,nuclear_repulsion):
+    def set_integrals(self,one_body,two_body,nuclear_repulsion=None):
         self.h = one_body
         self.v = two_body
         self.nuclear_repulsion = nuclear_repulsion
@@ -22,9 +22,10 @@ class Hamiltonian:
     def get_circuit(self):
         circuits = []
         # Add nuclear repulsion as empty circuit
-        rep = QuantumCircuit(self.l)
-        rep.factor = self.nuclear_repulsion
-        circuits.append(rep)
+        if not nuclear_repulsion is None:
+            rep = QuantumCircuit(self.l)
+            rep.factor = self.nuclear_repulsion
+            circuits.append(rep)
         # One-body interactions
         for p in range(self.l):
             for q in range(self.l):
