@@ -20,37 +20,37 @@ class X(Gate):
         self.char = 'X'
 
     def __mul__(self,other):
-        i = complex(0,1)
         if isinstance(other,(int,float,complex)):
             self.factor *= other
             return self
-        if isinstance(other,I):
+        elif isinstance(other,I):
             self.factor *= other.factor
             return self
-        if isinstance(other, Y):
-            new = Z(factor=self.factor*other.factor)
-            return -i*new
-        if isinstance(other, Z):
-            new = Y(factor=self.factor*other.factor)
-            return i*new
-        if isinstance(other,H):
+        elif type(self) == type(other):
+            k = self.factor*other.factor
+            return k*I()
+        elif isinstance(other,Y):
+            i = complex(0,1)
+            k = self.factor*other.factor
+            return -i*k*Z()
+        elif isinstance(other,Z):
+            i = complex(0,1)
+            k = self.factor*other.factor
+            return i*k*Y()
+        elif isinstance(other,Creation):
+            k = self.factor*other.factor
+            Id = 0.5*k*I() 
+            z = -0.5*k*Z()
+            return [Id,z]
+        elif isinstance(other,Annihilation):
+            k = self.factor*other.factor
+            Id = 0.5*k*I() 
+            z = 0.5*k*Z()
+            return [Id,z]
+        elif isinstance(other,Zero):
+            return Zero()
+        elif isinstance(other,H):
             return (self,other)
-        if type(self) == type(other):
-            new = I(factor=self.factor*other.factor)
-            return new
-        if isinstance(other,Creation):
-            Id = I(factor=0.5*self.factor * other.factor)
-            z = Z(factor=-0.5*self.factor * other.factor)
-            return [Id,z]
-        if isinstance(other,Annihilation):
-            Id = I(factor=0.5*self.factor*other.factor)
-            z = Z(factor=0.5*self.factor*other.factor)
-            return [Id,z]
-
-    def __rmul__(self,other):
-        if isinstance(other,(int,float,complex)):
-            self.factor *= other
-            return self
     
     def get_qiskit(self):
         return XGate()
@@ -61,37 +61,39 @@ class Y(Gate):
         self.char = 'Y'
 
     def __mul__(self,other):
-        i = complex(0,1)
         if isinstance(other,(int,float,complex)):
             self.factor *= other
             return self
-        if isinstance(other,I):
+        elif isinstance(other,I):
             self.factor *= other.factor
             return self
-        if isinstance(other, X):
-            new = Z(factor=self.factor*other.factor)
-            return i*new
-        if isinstance(other, Z):
-            new = X(factor=self.factor*other.factor)
-            return -i*new
-        if isinstance(other,H):
+        elif type(self) == type(other):
+            k = self.factor*other.factor
+            return k*I()
+        elif isinstance(other,X):
+            i = complex(0,1)
+            k = self.factor*other.factor
+            return i*k*Z()
+        elif isinstance(other,Z):
+            i = complex(0,1)
+            k = self.factor*other.factor
+            return -i*k*X()
+        elif isinstance(other,Creation):
+            i = complex(0,1)
+            k = self.factor*other.factor
+            Id = -0.5*i*k*I() 
+            z = 0.5*i*k*Z()
+            return [Id,z]
+        elif isinstance(other,Annihilation):
+            i = complex(0,1)
+            k = self.factor*other.factor
+            Id = 0.5*i*k*I() 
+            z = 0.5*i*k*Z()
+            return [Id,z]
+        elif isinstance(other,Zero):
+            return Zero()
+        elif isinstance(other,H):
             return (self,other)
-        if type(self) == type(other):
-            new = I(factor=self.factor*other.factor)
-            return new
-        if isinstance(other,Creation):
-            Id = I(factor=-0.5*complex(0,1)*self.factor * other.factor)
-            z = Z(factor=0.5*complex(0,1)*self.factor * other.factor)
-            return [Id,z]
-        if isinstance(other,Annihilation):
-            Id = I(factor=0.5*complex(0,1)*self.factor*other.factor)
-            z = Z(factor=0.5*complex(0,1)*self.factor*other.factor)
-            return [Id,z]
-
-    def __rmul__(self,other):
-        if isinstance(other,(int,float,complex)):
-            self.factor *= other
-            return self
 
     def get_qiskit(self):
         return YGate()
@@ -102,35 +104,33 @@ class Z(Gate):
         self.char = 'Z'
 
     def __mul__(self,other):
-        i = complex(0,1)
         if isinstance(other,(int,float,complex)):
             self.factor *= other
             return self
-        if isinstance(other,I):
+        elif isinstance(other,I):
             self.factor *= other.factor
             return self
-        if isinstance(other, X):
-            new = Y(factor=self.factor*other.factor)
-            return -i*new
-        if isinstance(other, Y):
-            new = X(factor=self.factor*other.factor)
-            return i*new
-        if isinstance(other,H):
-            return (self,other)
-        if type(self) == type(other):
-            new = I(factor=self.factor*other.factor)
-            return new
-        if isinstance(other,Creation):
+        elif type(self) == type(other):
+            k = self.factor*other.factor
+            return k*I()
+        elif isinstance(other,X):
+            i = complex(0,1)
+            k = self.factor * other.factor
+            return -i*k*Y()
+        elif isinstance(other,Y):
+            i = complex(0,1)
+            k = self.factor * other.factor
+            return i*k*X()
+        elif isinstance(other,Creation):
             other.factor *= self.factor
             return other
-        if isinstance(other,Annihilation):
-            other.factor *= -self.factor
-            return other
-
-    def __rmul__(self,other):
-        if isinstance(other,(int,float,complex)):
-            self.factor *= other
-            return self
+        elif isinstance(other,Annihilation):
+            other.factor *= self.factor
+            return -other
+        elif isinstance(other,Zero):
+            return Zero()
+        elif isinstance(other,H):
+            return (self,other)
 
     def get_qiskit(self):
         return ZGate()
@@ -139,3 +139,4 @@ class Z(Gate):
 from .ladder import Creation,Annihilation
 from .identity import I
 from .hadamard import H
+from .zero import Zero

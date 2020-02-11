@@ -23,10 +23,10 @@ class I(Gate):
             other.factor *= self.factor
             return other
 
-    def __rmul__(self,other):
-        if isinstance(other,(int,float,complex)):
-            self.factor *= other
-            return self
-        if isinstance(other,Gate):
-            other.factor *= self.factor
-            return other
+    #def __rmul__(self,other):
+    #    if isinstance(other,(int,float,complex)):
+    #        self.factor *= other
+    #        return self
+    #    if isinstance(other,Gate):
+    #        other.factor *= self.factor
+    #        return other

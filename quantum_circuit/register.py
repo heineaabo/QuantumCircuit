@@ -20,6 +20,30 @@ class QuantumRegister:
         self.qubits = [Qubit(name=str(i)) for i in range(n)]
         self.factor = 1
 
+    def __repr__(self):
+        return str(self.factor)+str(self.qubits)
+
+    def __eq__(self,other):
+        if isinstance(other,QuantumRegister):
+            if self.n == other.n:
+                self.defactor()
+                other.defactor()
+                if self.factor == other.factor:
+                    check = []
+                    for i in range(self.n):
+                        if self.qubits[i] == other.qubits[i]:
+                            check.append(True)
+                        else:
+                            check.append(False)
+                    if sum(check) == self.n:
+                        return True
+        return False
+
+    def __getitem__(self,i):
+        if i > self.n:
+            raise ValueError('Qubit {} not available in register with {} qubits.'.format(i,self.n))
+        return self.qubits[i]
+    
     def get_length(self):
         l = []
         for i in range(len(self.qubits)):
@@ -52,11 +76,6 @@ class QuantumRegister:
                 information.append([i,info])
         return information
 
-    def __getitem__(self,i):
-        if i > self.n:
-            raise ValueError('Qubit {} not available in register with {} qubits.'.format(i,self.n))
-        return self.qubits[i]
-    
     def append(self,qbit,check_name=True):
         """
         Append a qbit to register.
@@ -101,4 +120,9 @@ class QuantumRegister:
                 self[i].apply(Z())
             self[qbit].apply(Annihilation())
    
-    
+    def all_empty(self):
+        check = True
+        for b in self.qubits:
+            if not b.is_empty():
+                check = False
+        return check

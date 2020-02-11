@@ -2,6 +2,8 @@ import sys
 sys.path.append('..')
 from quantum_circuit.gates import *
 
+# FOR REVERSED GATE PRODUCTS
+
 ### With int,float,complex
 first = I()
 first.factor *= 2
@@ -67,11 +69,14 @@ assert Z()*H() == (Z(),H())
 assert Creation()*Creation() == Zero()
 assert Annihilation()*Annihilation() == Zero()
 
+assert Creation()*Annihilation() == [0.5*I(),0.5*Z()]
+assert Annihilation()*Creation() == [0.5*I(),-0.5*Z()]
+
 assert Creation()*X() == [(0.5)*I(),(0.5)*Z()]
 assert Creation()*Y() == [(-0.5*i)*I(),(-0.5*i)*Z()]
 assert Creation()*Z() == -Creation()
 assert Creation()*H() == (Creation(),H())
-assert X()*Creation() == [(0.5)*I(),-(0.5)*Z()]
+assert X()*Creation() == [(0.5)*I(),(-0.5)*Z()]
 assert Y()*Creation() == [(-0.5*i)*I(),(0.5*i)*Z()]
 assert Z()*Creation() == Creation()
 assert H()*Creation() == (H(),Creation())
@@ -89,3 +94,18 @@ assert H()*Annihilation() == (H(),Annihilation())
 assert Creation().transform() == [X(factor=0.5),Y(factor=-0.5*complex(0,1))]
 assert Annihilation().transform() == [X(factor=0.5),Y(factor=0.5*complex(0,1))]
 
+### Zero
+assert Zero()*X() == Zero()
+assert Zero()*X() == Zero()
+assert Zero()*Y() == Zero()
+assert Zero()*Z() == Zero()
+assert Zero()*H() == Zero()
+assert Zero()*I() == Zero()
+assert Zero()*Creation() == Zero()
+assert Zero()*Annihilation() == Zero()
+assert Y()*Zero() == Zero()
+assert Z()*Zero() == Zero()
+assert H()*Zero() == Zero()
+assert I()*Zero() == Zero()
+assert Creation()*Zero() == Zero()
+assert Annihilation()*Zero() == Zero()

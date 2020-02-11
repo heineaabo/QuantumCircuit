@@ -19,30 +19,30 @@ class H(Gate):
         if isinstance(other,(int,float,complex)):
             self.factor *= other
             return self
-        if isinstance(other,Gate):
-            if isinstance(other,I):
-                self.factor *= other.factor
-                return self
-            else:
-                return (self,other)
-        else:
-            raise ValueError('Can not multiply instance {} with instance {}'.format(type(self),type(other)))
-
-    def __rmul__(self,other):
-        if isinstance(other,(int,float,complex)):
-            self.factor *= other
+        elif isinstance(other,H):
+            k = self.factor*other.factor
+            return k*I()
+        elif isinstance(other,I):
+            self.factor *= other.factor
             return self
-        if isinstance(other,Gate):
-            if isinstance(other,I):
-                self.factor *= other.factor
-                return self
-            else:
-                return (other,self)
-        else:
-            raise ValueError('Can not multiply instance {} with instance {}'.format(type(self),type(other)))
+        elif isinstance(other,X):
+            return (self,other)
+        elif isinstance(other,Y):
+            return (self,other)
+        elif isinstance(other,Z):
+            return (self,other)
+        elif isinstance(other,Creation):
+            return (self,other)
+        elif isinstance(other,Annihilation):
+            return (self,other)
+        elif isinstance(other,Zero):
+            return Zero()
 
     def get_qiskit(self):
         return HGate()
 
 # Necessary imports
 from .identity import I
+from .zero import Zero
+from .ladder import Creation,Annihilation
+from .pauli import X,Y,Z

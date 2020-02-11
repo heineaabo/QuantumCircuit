@@ -12,6 +12,12 @@ sys.path.append('..')
 from quantum_circuit import Hamiltonian, QuantumCircuit
 from quantum_circuit.utils import molecular2sec_quant
 
+def openferm2circ(op):
+    for i in str(op).split('\n'):
+        print(i)
+
+
+
 R = 0.7
 
 geometry = [['H',[0,0,0]],
@@ -20,47 +26,33 @@ molecule = MolecularData(geometry,'sto-3g',1,0)
 molecule = run_psi4(molecule,run_fci=True)
 h_pq = molecule.one_body_integrals
 h_pqrs = molecule.two_body_integrals
-overlap = molecule.overlap_integrals
+nuc_repulsion = molecule.nuclear_repulsion
 fci_energy = molecule.fci_energy
-print(fci_energy)
 
 # OpenFermion Hamiltonian
-#molecular_hamiltonian = molecule.get_molecular_hamiltonian()
-#fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)
-#qubit_hamiltonian = jordan_wigner(fermion_hamiltonian)
-#qubit_hamiltonian.compress()
+molecular_hamiltonian = molecule.get_molecular_hamiltonian()
+fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)
+qubit_hamiltonian = jordan_wigner(fermion_hamiltonian)
+qubit_hamiltonian.compress()
 #print('The Jordan-Wigner Hamiltonian in canonical basis follows:\n{}'.format(qubit_hamiltonian))
+
 
 h2_my = Hamiltonian(2,4)
 one,two = molecular2sec_quant(h_pq,h_pqrs)
-h2_my.set_integrals(one,two)
-circuit_list2 = h2_my.get_circuit()
+h2_my.set_integrals(one,two,nuc_repulsion)
+h2_my.get_circuit()
+for i in h2_my.to_circuit_list(ptype='openfermion'): print(i)
+print('openfermion')
+openferm2circ(qubit_hamiltonian)
 
-#print('Open Fermion:')
-#for i in circuit_list:
-#    print(i)
-#print('\n')
-#print('My:')
-#for i in circuit_list2:
-#    print(i)
-#print(h_pq)
-#print(h_pqrs)
-#for i in circuit_list:
-#    for j in circuit_list2:
-#        if i[1:] == j[1:]:
-#            print('{:5f} {:5f} {:5f} {:5f} {}'.format(i[0],j[0].real,j[0].real*2,j[0].real*4,i[1:]))
-
-#one = np.load('QS_one0714.npy')
-#two = np.load('QS_two0714.npy')
-#print(one,two)
-#
-#h2_qs = Hamiltonian(4)
-##one_two = molecular2sec_quant(one,two)
-#circuit_list3 = h2_qs.get_circuits(one,two)
-for i in circuit_list:
-    print(i)
-for i in circuit_list2:
-    print(i)
-
-
+#for i,h1 in enumerate(one):
+#    for j,h2 in enumerate(h1):
+#        if h2 != 0:
+#            print(i,j,h2)
+#for i,h1 in enumerate(two):
+#    for j,h2 in enumerate(h1):
+#        for a,h3 in enumerate(h2):
+#            for b,h4 in enumerate(h3):
+#                if h4 != 0:
+#                    print(i,j,a,b,' -> ',h4,'\t',h4/4)
 

@@ -15,8 +15,6 @@ def get_permutations(n):
     perms = []
     for elem in unique:
         new = []
-        x = X(factor=0.5)
-        y = Y(factor=0.5*complex(0,1)) 
         for o in elem:
             new.append(X(factor=0.5) if o == 'x' else Y(factor=0.5*complex(0,1)))
         perms.append(new)
@@ -78,5 +76,6 @@ def molecular2sec_quant(one_body_integrals,two_body_integrals,EQ_TOLERANCE=1e-08
             np.absolute(two_body_coefficients) < EQ_TOLERANCE] = 0.
 
         two_body_coefficients = np.einsum('pqsr',two_body_coefficients)
+        #two_body_coefficients = two_body_coefficients.transpose(0,2,1,3)
 
         return one_body_coefficients, two_body_coefficients

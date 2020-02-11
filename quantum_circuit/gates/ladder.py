@@ -19,47 +19,36 @@ class Creation(Ladder):
         self.char = '+'
 
     def __mul__(self,other):
-        if isinstance(other,(int,float,complex)):
-            self.factor *= other
-            return self
         if isinstance(other,Creation):
             return Zero()
-
-        if isinstance(other,Annihilation):
-            Id = I(factor=0.5*self.factor * other.factor)
-            z = Z(factor=0.5*self.factor * other.factor)
+        elif isinstance(other,Annihilation):
+            k = self.factor*other.factor
+            Id = (0.5*k)*I()
+            z = (0.5*k)*Z()
             return [Id,z]
-        if isinstance(other,X):
-            Id = I(factor=0.5*self.factor * other.factor)
-            z = Z(factor=0.5*self.factor * other.factor)
+        elif isinstance(other,X):
+            k = self.factor*other.factor
+            Id = (0.5*k)*I()
+            z = (0.5*k)*Z()
             return [Id,z]
-        if isinstance(other,Y):
-            Id = I(factor=-0.5*complex(0,1)*self.factor * other.factor)
-            z = Z(factor=-0.5*complex(0,1)*self.factor * other.factor)
+        elif isinstance(other,Y):
+            i = complex(0,1)
+            k = self.factor*other.factor
+            Id = (-0.5*i*k)*I()
+            z = (-0.5*i*k)*Z()
             return [Id,z]
-        if isinstance(other,Z):
-            self.factor *= -other.factor
+        elif isinstance(other,Z):
+            self.factor *= other.factor
+            self.factor *= -1
             return self
-        if isinstance(other,H):
-            return (self,other)
-
-    def __rmul__(self,other):
-        if isinstance(other,X):
-            Id = I(factor=0.5*self.factor * other.factor)
-            z = Z(factor=-0.5*self.factor * other.factor)
-            return [Id,z]
-        if isinstance(other,Y):
-            Id = I(factor=-0.5*complex(0,1)*self.factor * other.factor)
-            z = Z(factor=0.5*complex(0,1)*self.factor * other.factor)
-            return [Id,z]
-        if isinstance(other,Z):
+        elif isinstance(other,I):
             self.factor *= other.factor
             return self
-        if isinstance(other,H):
-            return (other,self)
-        if isinstance(other,(int,float,complex)):
-            self.factor *= other
-            return self
+        elif isinstance(other,Zero):
+            return Zero()
+        elif isinstance(other,H):
+            return (self,other)
+        #elif isinstance(other,):
 
     def transform(self):
         x = X(factor=0.5*self.factor)
@@ -73,49 +62,34 @@ class Annihilation(Ladder):
         self.char = '-'
 
     def __mul__(self,other):
-        if isinstance(other,(int,float,complex)):
-            self.factor *= other
-            return self
         if isinstance(other,Annihilation):
             return Zero()
-
-        if isinstance(other,Creation):
-            Id = I(factor=0.5*self.factor*other.factor)
-            z = Z(factor=-0.5*self.factor*other.factor)
+        elif isinstance(other,Creation):
+            k = self.factor*other.factor
+            Id = (0.5*k)*I()
+            z = (-0.5*k)*Z()
             return [Id,z]
-        
-        if isinstance(other,X):
-            Id = I(factor=0.5*self.factor*other.factor)
-            z = Z(factor=-0.5*self.factor*other.factor)
+        elif isinstance(other,X):
+            k = self.factor*other.factor
+            Id = (0.5*k)*I()
+            z = (-0.5*k)*Z()
             return [Id,z]
-        if isinstance(other,Y):
-            Id = I(factor=0.5*complex(0,1)*self.factor*other.factor)
-            z = Z(factor=-0.5*complex(0,1)*self.factor*other.factor)
+        elif isinstance(other,Y):
+            i = complex(0,1)
+            k = self.factor*other.factor
+            Id = (0.5*i*k)*I()
+            z = (-0.5*i*k)*Z()
             return [Id,z]
-        if isinstance(other,Z):
+        elif isinstance(other,Z):
             self.factor *= other.factor
             return self
-        if isinstance(other,H):
+        elif isinstance(other,I):
+            self.factor *= other.factor
+            return self
+        elif isinstance(other,Zero):
+            return Zero()
+        elif isinstance(other,H):
             return (self,other)
-
-    def __rmul__(self,other):
-        if isinstance(other,X):
-            Id = I(factor=0.5*self.factor*other.factor)
-            z = Z(factor=0.5*self.factor*other.factor)
-            return [Id,z]
-        if isinstance(other,Y):
-            Id = I(factor=0.5*complex(0,1)*self.factor*other.factor)
-            z = Z(factor=0.5*complex(0,1)*self.factor*other.factor)
-            return [Id,z]
-        if isinstance(other,Z):
-            self.factor *= -other.factor
-            return self
-        if isinstance(other,H):
-            return (other,self)
-        if isinstance(other,(int,float,complex)):
-            self.factor *= other
-            return self
-
 
     def transform(self):
         x = X(factor=0.5*self.factor)

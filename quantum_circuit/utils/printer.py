@@ -6,14 +6,28 @@ class Printer:
     """
     #def __init__(self):
  
-    def print_circuit(self,circuit):
+    def print_circuit(self,circuit,eco=False):
         string = ''
+        top = ''
+        mid = ''
+        bot = ''
         circ_len = circuit.register.get_length()
+        if circ_len == 0:
+            circ_len = 1
         for i in range(circuit.register.n):
-            string += self.print_qubit(circuit.register[i],length=circ_len)
-        return string
+            if eco:
+                t,m,b = self.print_qubit(circuit.register[i],length=circ_len,eco=eco)
+                top += t+'  '
+                mid += m+'  '
+                bot += b+'  '
+            else:
+                string += self.print_qubit(circuit.register[i],length=circ_len)
+        if eco:
+            return top +'\n'+mid+'\n'+bot+'\n' 
+        else:
+            return string
 
-    def print_qubit(self,qubit,length):
+    def print_qubit(self,qubit,length,eco=False):
         top = ' '*(len(qubit.name)+3)
         mid = '\u2758{}\u27E9 '.format(qubit.name)
         bot = ' '*(len(qubit.name)+3)
@@ -30,7 +44,10 @@ class Printer:
             top += t
             mid += m
             bot += b
-        return top+'\n'+mid+'\n'+bot+'\n'
+        if eco:
+            return top,mid,bot
+        else:
+            return top+'\n'+mid+'\n'+bot+'\n'
 
     def print_control(self,control_list=None,q=None):
         mb = '┬'
