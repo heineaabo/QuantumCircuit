@@ -13,6 +13,7 @@ class Hamiltonian:
         self.n = n
         self.l = l
         self.circuit = []
+        self._circuit_list = None
 
     def set_integrals(self,one_body,two_body,nuclear_repulsion=None):
         self.h = one_body
@@ -71,7 +72,7 @@ class Hamiltonian:
                 unique_circs.pop(i)
         return unique_circs
 
-    def to_circuit_list(self,ptype='qiskit'):
+    def to_circuit_list(self):#,ptype='qiskit'):
         """
         Input:
             - ptype (str): How to represent gate actions
@@ -79,6 +80,7 @@ class Hamiltonian:
                 - vqe    -> As Qoperator in VQE takes in
                 - opernfermion -> As openfermion prints.
         """
+        ptype = 'vqe'
         circuit_list = []
         for circuit in self.circuit:
             circuit.defactor() # not necessary?
@@ -94,7 +96,37 @@ class Hamiltonian:
             #if len(new) == 1:
             #    new.append([])
             circuit_list.append(new)
-        return circuit_list
+        self._circuit_list = circuit_list
 
+    @property
+    def circuit_list(self):
+        if self._circuit_list == None:
+            self.to_circuit_list()
+        return self._circuit_list
+
+    
+    def __str__(self):
+        to_print = self.sort_circuit_list()
+        string = ''
+        for elem in to_print:
+            if len(elem) == 1:
+                string += str(elem[0]) +'\n'
+            else:
+                string += str(elem[0]) + ' ['
+                for i,gate in enumerate(elem[1:]):
+                    if i != 0:
+                        string += ' '
+                    string += gate[1].upper() + str(gate[0])
+                string += ']\n'
+        return string
+            
+
+    def sort_circuit_list(self):
+        new = []
+        for i in range(5):
+            for elem in self._circuit_list:
+                if len(elem) == i+1:
+                    new.append(elem)
+        return new
 
 
