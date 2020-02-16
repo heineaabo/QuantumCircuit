@@ -18,6 +18,7 @@ class QuantumRegister:
     def __init__(self,n):
         self.n = n
         self.qubits = [Qubit(name=str(i)) for i in range(n)]
+        self.controls = []
         self.factor = 1
 
     def __repr__(self):
@@ -126,3 +127,21 @@ class QuantumRegister:
             if not b.is_empty():
                 check = False
         return check
+
+    ### Control listing
+    def add_layer(self,i,to_ctrl=True):
+        """
+        Add layer to circuit -> identity gates on all qubits except i.
+        """
+        self.controls.append(I())
+        for j,q in enumerate(self.qubits):
+            if j != i:
+                q.apply(I())
+
+    def act(self,gate,q1,q2=None,phi=None):
+        if q2 == None: # single qubit gate
+            self.qubits[q1].apply(q1,phi=phi)
+            self.add_layer(q1)
+
+        else: # Control qubit gate
+            pass

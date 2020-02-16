@@ -43,7 +43,7 @@ class Qubit:
         if i == None:
             self.circ.append(gate)
         else:
-            self.circ.insert(0,gate)
+            self.circ.insert(i,gate)
             
     def optimize(self):
         if len(self.circ) > 0:
