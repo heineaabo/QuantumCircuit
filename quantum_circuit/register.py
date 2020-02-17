@@ -1,6 +1,5 @@
 from .qubit import Qubit
-from quantum_circuit.gates.pauli import Z
-from quantum_circuit.gates.ladder import Creation,Annihilation
+from quantum_circuit.gates import I,Z,Creation,Annihilation
 
 class QuantumRegister:
     """
@@ -14,6 +13,9 @@ class QuantumRegister:
         n      (int)   - Number of qubits.
         qubits (List)  - List storing all qubits.
         factor (float) - Total factor of all qubits.
+
+         ---  Important  ---
+    Implement gates using call method.
     """
     def __init__(self,n):
         self.n = n
@@ -44,7 +46,27 @@ class QuantumRegister:
         if i > self.n:
             raise ValueError('Qubit {} not available in register with {} qubits.'.format(i,self.n))
         return self.qubits[i]
+
+    def __call__(self,gate,q1,q2=None,phi=None):
+        if q2 == None: # single qubit gate
+            self.qubits[q1].apply(gate,q1,phi=phi)
+            self.identity_layer(q1)
+
+        else: # Control qubit gate
+            pass
+
+    ### Control listing
+    def identity_layer(self,i,to_ctrl=True):
+        """
+        Add layer to circuit -> identity gates on all qubits except i.
+        """
+        self.controls.append(I())
+        for j,q in enumerate(self.qubits):
+            if j != i:
+                q.apply(I())
+
     
+    ### REWRITE
     def get_length(self):
         l = []
         for i in range(len(self.qubits)):
@@ -103,8 +125,8 @@ class QuantumRegister:
         """
         if transf.lower() == 'jw':
             for i in range(qbit):
-                self[i].apply(Z())
-            self[qbit].apply(Creation())
+                self(Z(),i)
+            self(Creation(),qbit)
 
     def add_annihilation(self,qbit,transf='jw'):
         """
@@ -118,8 +140,8 @@ class QuantumRegister:
         """
         if transf.lower() == 'jw':
             for i in range(qbit):
-                self[i].apply(Z())
-            self[qbit].apply(Annihilation())
+                self(Z(),i)
+            self(Creation(),qbit)
    
     def all_empty(self):
         check = True
@@ -128,20 +150,3 @@ class QuantumRegister:
                 check = False
         return check
 
-    ### Control listing
-    def add_layer(self,i,to_ctrl=True):
-        """
-        Add layer to circuit -> identity gates on all qubits except i.
-        """
-        self.controls.append(I())
-        for j,q in enumerate(self.qubits):
-            if j != i:
-                q.apply(I())
-
-    def act(self,gate,q1,q2=None,phi=None):
-        if q2 == None: # single qubit gate
-            self.qubits[q1].apply(q1,phi=phi)
-            self.add_layer(q1)
-
-        else: # Control qubit gate
-            pass

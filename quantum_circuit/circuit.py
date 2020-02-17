@@ -34,10 +34,12 @@ class QuantumCircuit:
             factor (float) - Factor to be added to gate.
         """
         if q2 != None:
-            to_be_apended = get_gate(gate,q1,q2,phi,factor) # in gates.py
+            to_be_appended = get_gate(gate,q1,q2,phi) # in gates.py
+            to_be_appended.factor *= factor
         else:
             to_be_appended = gate
-        self.register[q1].apply(to_be_appended)
+            to_be_appended.factor *= factor
+        self.register(to_be_appended,q1,q2,phi) # REWRITE
 
     def __str__(self):
         return Printer().print_circuit(self,eco=eco_print)
@@ -46,14 +48,14 @@ class QuantumCircuit:
         if isinstance(other,QuantumCircuit):
             self.defactor()
             other.defactor()
-            if self.factor == other.factor:
-                print('factor equal',self.factor,other.factor)
-            else:
-                print('factor Not equal',self.factor,other.factor)
-            if self.register == other.register:
-                print('register equal',self.register,other.register)
-            else:
-                print('register Not equal',self.register,other.register)
+            #if self.factor == other.factor:
+            #    print('factor equal',self.factor,other.factor)
+            #else:
+            #    print('factor Not equal',self.factor,other.factor)
+            #if self.register == other.register:
+            #    print('register equal',self.register,other.register)
+            #else:
+            #    print('register Not equal',self.register,other.register)
             if self.register == other.register and self.factor == other.factor:
                 return True
         return False
@@ -115,7 +117,7 @@ class QuantumCircuit:
     def insert_one_body_operator(self,h,i,a):
         """
         Insert one-body second quantized operator on form:
-            <i|h|a> a_a^\dagger a_i
+            ⟨a∣h∣i⟩ a_a^\dagger a_i
 
         Input:
             i (int)   - Orbital to annihilate
@@ -129,7 +131,7 @@ class QuantumCircuit:
     def insert_two_body_operator(self,v,i,j,a,b):
         """
         Insert two-body second quantized operator on form:
-            <ij|v|ab> a_a^\dagger a_b^\dagger a_j a_i
+            ⟨ab∣h∣ij⟩ a_a^\dagger a_b^\dagger a_j a_i
 
         Input:
             i (int)   - Orbital to annihilate

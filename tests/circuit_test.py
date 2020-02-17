@@ -40,4 +40,13 @@ q1(Z(),0)
 q2(Z(),0)
 assert q1 == q2
 
+## Ladder operations
+q1.insert_one_body_operator(1,1,3)
+q2.insert_one_body_operator(1,1,3)
+assert q1 == q2
+q1.gate_optimization()
+assert q1 != q2
+q2.gate_optimization()
+assert q1 == q2
+
 

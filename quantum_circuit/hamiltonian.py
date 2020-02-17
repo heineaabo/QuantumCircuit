@@ -53,7 +53,7 @@ class Hamiltonian:
             circ.gate_optimization()
             circ.defactor()
             if np.isclose(circ.factor,0):
-                circuits.pop(i)
+                circuits.pop(i) 
                 continue
             circ.remove_identity()
         unique_circs = [circuits[0]]

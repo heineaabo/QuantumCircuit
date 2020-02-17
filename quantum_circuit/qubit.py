@@ -39,7 +39,7 @@ class Qubit:
                 self.circ.pop(i)
 
 
-    def apply(self,gate,i=None):
+    def apply(self,gate,i=None,phi=None):
         if i == None:
             self.circ.append(gate)
         else:
