@@ -1,5 +1,5 @@
 from .qubit import Qubit
-from quantum_circuit.gates import I,Z,Creation,Annihilation
+#from quantum_circuit.gates import I,Z,Creation,Annihilation
 
 class QuantumRegister:
     """
@@ -56,14 +56,14 @@ class QuantumRegister:
             pass
 
     ### Control listing
-    def identity_layer(self,i,to_ctrl=True):
-        """
-        Add layer to circuit -> identity gates on all qubits except i.
-        """
-        self.controls.append(I())
-        for j,q in enumerate(self.qubits):
-            if j != i:
-                q.apply(I())
+    #def identity_layer(self,i,to_ctrl=True):
+    #    """
+    #    Add layer to circuit -> identity gates on all qubits except i.
+    #    """
+    #    self.controls.append(I())
+    #    for j,q in enumerate(self.qubits):
+    #        if j != i:
+    #            q.apply(I())
 
     
     ### REWRITE
@@ -88,26 +88,28 @@ class QuantumRegister:
         for i in range(self.n):
             if len(self[i].circ) > 0:
                 new = [self[i].circ[0]]
-                for i in range(1,len(self[i].circ)):
+                for j in range(1,len(self[i].circ)):
                     gate1 = new[-1]
-                    gate2 = self[i].circ[i]
+                    gate2 = self[i].circ[j]
                     gate = gate1*gate2
-                    if isinstance(gate,Gate):
-                        new[-1] = gate
-                    elif isinstance(gate,tuple):
+                    #if isinstance(gate,Gate):
+                    #    new[-1] = gate
+                    if isinstance(gate,tuple):
                         new[-1] = gate[0]
                         new.append(gate[1])
                     elif isinstance(gate,list):
                         # Dont transform
                         new.append(gate2)
                     else:
-                        print(gate,gate1,gate2,new,self.circ,self.name)
-                        raise ValueError('WRONG')
+                        # other == type(Gate)
+                        new[-1] = gate
+                        #print(gate,gate1,gate2,new,self.circ,self.name)
+                        #raise ValueError('WRONG')
                 factor = 1
-                for i in reversed(range(len(new))):
-                    if isinstance(new[i],I):
-                        factor *= new[i].factor
-                        new.pop(i)
+                for j in reversed(range(len(new))):
+                    if new[j].is_identity():
+                        factor *= new[j].factor
+                        new.pop(j)
                 self[i].circ = new
                 self[i].factor *= factor
 
@@ -136,35 +138,35 @@ class QuantumRegister:
         self.qubits.append(qbit)
         self.n += 1
 
-    def add_creation(self,qbit,transf='jw'):
-        """
-        Add transformed creation operator to qubit.
+    #def add_creation(self,qbit,transf='jw'):
+    #    """
+    #    Add transformed creation operator to qubit.
 
-        Input:
-            qbit (int) - Qubit to apply creation operator.
-            transf (str) - Transformation type:
-                    jw - Jordan-Wigner
-                    bk - Braviy-Kitaev (TODO)
-        """
-        if transf.lower() == 'jw':
-            for i in range(qbit):
-                self(Z(),i)
-            self(Creation(),qbit)
+    #    Input:
+    #        qbit (int) - Qubit to apply creation operator.
+    #        transf (str) - Transformation type:
+    #                jw - Jordan-Wigner
+    #                bk - Braviy-Kitaev (TODO)
+    #    """
+    #    if transf.lower() == 'jw':
+    #        for i in range(qbit):
+    #            self(Z(),i)
+    #        self(Creation(),qbit)
 
-    def add_annihilation(self,qbit,transf='jw'):
-        """
-        Add transformed annihilation operator to qubit.
+    #def add_annihilation(self,qbit,transf='jw'):
+    #    """
+    #    Add transformed annihilation operator to qubit.
 
-        Input:
-            qbit (int) - Qubit to apply annihilation operator.
-            transf (str) - Transformation type:
-                    jw - Jordan-Wigner
-                    bk - Braviy-Kitaev (TODO)
-        """
-        if transf.lower() == 'jw':
-            for i in range(qbit):
-                self(Z(),i)
-            self(Creation(),qbit)
+    #    Input:
+    #        qbit (int) - Qubit to apply annihilation operator.
+    #        transf (str) - Transformation type:
+    #                jw - Jordan-Wigner
+    #                bk - Braviy-Kitaev (TODO)
+    #    """
+    #    if transf.lower() == 'jw':
+    #        for i in range(qbit):
+    #            self(Z(),i)
+    #        self(Creation(),qbit)
    
     def all_empty(self):
         check = True

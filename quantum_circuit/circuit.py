@@ -1,7 +1,7 @@
 from .qubit import Qubit
 from .register import QuantumRegister
-from .utils import Printer,get_permutations
-from .gates import Creation,Y
+from .utils import Printer#,get_permutations
+#from .gates import Creation,Y, get_gate
 
 from math import pi
 from copy import deepcopy
@@ -75,44 +75,41 @@ class QuantumCircuit:
         for i in range(self.register.n):
             self.register[i].remove_identity()
 
-    def optimize(self):
-        self.check_ladder()
-    
-    def transform_ladder_operators(self):
-        self.gate_optimization()
-        info = self.register.check_ladder()
-        num = 0 # Number of new 
-        each_ladder = []
-        for elem in info:
-            i = elem[0]
-            for j in elem[1]:
-                num += 1
-                each_ladder.append([i,j])
-        copies = [self.copy() for i in range(2**num)]
-        perms = get_permutations(num)
-        assert len(copies) == len(perms)
-        for perm,circ in zip(perms,copies):
-            for j,gate in enumerate(perm):
-                qbit,ind = each_ladder[j]
-                gate.factor *= circ.register[qbit].circ[ind].factor
-                if isinstance(circ.register[qbit].circ[ind],Creation)\
-                        and isinstance(gate,Y):
-                    gate.factor *= -1
-                circ.register[qbit].circ[ind] = gate
-        for circ in copies:
-            circ.gate_optimization()
-            circ.defactor()
-        unique = [copies[0]]
-        for circ1 in copies[1:]:
-            check = False
-            for circ2 in unique:
-                if circ1.register == circ2.register:
-                    circ2.factor += circ1.factor
-                    check = True
-                    break
-            if not check:
-                unique.append(circ1)
-        return unique
+    #def transform_ladder_operators(self):
+    #    self.gate_optimization()
+    #    info = self.register.check_ladder()
+    #    num = 0 # Number of new 
+    #    each_ladder = []
+    #    for elem in info:
+    #        i = elem[0]
+    #        for j in elem[1]:
+    #            num += 1
+    #            each_ladder.append([i,j])
+    #    copies = [self.copy() for i in range(2**num)]
+    #    perms = get_permutations(num)
+    #    assert len(copies) == len(perms)
+    #    for perm,circ in zip(perms,copies):
+    #        for j,gate in enumerate(perm):
+    #            qbit,ind = each_ladder[j]
+    #            gate.factor *= circ.register[qbit].circ[ind].factor
+    #            if isinstance(circ.register[qbit].circ[ind],Creation)\
+    #                    and isinstance(gate,Y):
+    #                gate.factor *= -1
+    #            circ.register[qbit].circ[ind] = gate
+    #    for circ in copies:
+    #        circ.gate_optimization()
+    #        circ.defactor()
+    #    unique = [copies[0]]
+    #    for circ1 in copies[1:]:
+    #        check = False
+    #        for circ2 in unique:
+    #            if circ1.register == circ2.register:
+    #                circ2.factor += circ1.factor
+    #                check = True
+    #                break
+    #        if not check:
+    #            unique.append(circ1)
+    #    return unique
         
     def insert_one_body_operator(self,h,i,a):
         """
@@ -152,6 +149,7 @@ class QuantumCircuit:
             cb = qk.ClassicalRegister(self.n_qubits)
             qc = qk.QuantumCircuit(qb,cb)
         
+        self.defactor() 
         for i in range(self.n_qubits):
             gate = self.mat[i].circ[j]
             if not isinstance(gate,I):
@@ -159,4 +157,12 @@ class QuantumCircuit:
             else:
                 ctrl,targ = elem.get_connections()
                 qc.append(elem.get_qiskit(),[ctrl,targ],[])
-        return qc,qb,cb
+        return qc,qb,cb,self.factor
+
+    def compare_to_control(self):
+        """
+        Move all gates with respect to control operations and insert identity
+        gates to isolate "regions" of single qubit gates between control gates.
+        Probably only necessary for printing.
+        """
+        pass

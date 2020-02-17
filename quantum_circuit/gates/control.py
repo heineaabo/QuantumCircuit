@@ -43,3 +43,4 @@ class TARG(Gate):
 
         elif isinstance(other,Gate):
             return (other,self)
+

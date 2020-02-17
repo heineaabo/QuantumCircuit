@@ -1,5 +1,4 @@
-from quantum_circuit.gates import Gate,I
-from quantum_circuit.gates.ladder import Creation,Annihilation
+#from quantum_circuit.gates import Gate,I,Creation,Annihilation
 
 class Qubit:
     def __init__(self,name='q'):
@@ -16,6 +15,9 @@ class Qubit:
 
     def __repr__(self):
         return str(self.circ)
+
+    #def __getitem__(self,i):
+    #    return self.circ[i]
 
     def __eq__(self,other):
         if isinstance(other,Qubit):
@@ -34,7 +36,7 @@ class Qubit:
     def remove_identity(self):
         self.defactor()
         for i in reversed(range(len(self.circ))):
-            if isinstance(self.circ[i],I):
+            if self.circ[i].is_identity():
                 self.factor *= self.circ[i].factor
                 self.circ.pop(i)
 
@@ -52,22 +54,22 @@ class Qubit:
             # Defactor gate
             self.circ[i].factor = 1
 
-    def get_all_ladder(self):
-        """
-        Returns position of all ladder operations on qubit.
-        """
-        num_ladder = 0
-        ladder_operators = []
-        for i,gate in enumerate(self.circ):
-            if isinstance(gate,(Creation,Annihilation)):
-                ladder_operators.append(i)
-            else:
-                continue
-        return ladder_operators
+    #def get_all_ladder(self):
+    #    """
+    #    Returns position of all ladder operations on qubit.
+    #    """
+    #    num_ladder = 0
+    #    ladder_operators = []
+    #    for i,gate in enumerate(self.circ):
+    #        if isinstance(gate,(Creation,Annihilation)):
+    #            ladder_operators.append(i)
+    #        else:
+    #            continue
+    #    return ladder_operators
 
-    def is_empty(self):
-        check = True
-        for gate in self.circ:
-            if not isinstance(gate,I):
-                check = False
-        return check
+    #def is_empty(self):
+    #    check = True
+    #    for gate in self.circ:
+    #        if not isinstance(gate,I):
+    #            check = False
+    #    return check

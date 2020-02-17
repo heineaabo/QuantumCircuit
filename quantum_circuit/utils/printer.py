@@ -1,4 +1,4 @@
-from quantum_circuit.gates.identity import I
+#from quantum_circuit.gates.identity import I
 
 class Printer:
     """
@@ -32,7 +32,7 @@ class Printer:
         mid = '\u2758{}\u27E9 '.format(qubit.name)
         bot = ' '*(len(qubit.name)+3)
         for gate in qubit.circ:
-            if isinstance(gate,I):
+            if gate.is_identity():
                 t,m,b = self.print_line()
             else:
                 t,m,b = self.print_gate(gate)

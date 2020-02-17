@@ -44,3 +44,9 @@ class Gate:
 
     def __repr__(self):
         return self.char
+
+
+    def is_identity(self):
+        if self.char == 'I':
+            return True
+        return False
