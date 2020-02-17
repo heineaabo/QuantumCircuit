@@ -49,4 +49,10 @@ assert q1 != q2
 q2.gate_optimization()
 assert q1 == q2
 
+## Easy gate act
+q1 = QuantumCircuit(2)
+q2 = QuantumCircuit(2)
+q1(X(),0)
+q2.x(0)
 
+assert q1 == q2

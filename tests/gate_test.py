@@ -30,6 +30,10 @@ assert X() != H()
 assert Y() != H()
 assert Z() != H()
 
+assert I().is_identity() == True
+assert X().is_identity() == False
+assert Y().is_identity() == False
+assert Z().is_identity() == False
 
 ### Identity
 assert I()*I() == I()
