@@ -41,6 +41,15 @@ class H(Gate):
     def get_qiskit(self):
         return HGate()
 
+
+# Hadamard gate to QuantumCircuit functionality
+from .. import QuantumCircuit
+def h(self,q):
+    self.register.qubits[q].append(H())
+    self.register.identity_layer(q)
+    return self
+QuantumCircuit.h = h
+
 # Necessary imports
 from .identity import I
 from .zero import Zero

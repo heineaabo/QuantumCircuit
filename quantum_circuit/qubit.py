@@ -54,6 +54,13 @@ class Qubit:
             # Defactor gate
             self.circ[i].factor = 1
 
+    def is_empty(self):
+        check = True
+        for gate in self.circ:
+            if not gate.is_identity():
+                check = False
+        return check
+
     #def get_all_ladder(self):
     #    """
     #    Returns position of all ladder operations on qubit.
@@ -66,10 +73,3 @@ class Qubit:
     #        else:
     #            continue
     #    return ladder_operators
-
-    #def is_empty(self):
-    #    check = True
-    #    for gate in self.circ:
-    #        if not isinstance(gate,I):
-    #            check = False
-    #    return check

@@ -135,6 +135,27 @@ class Z(Gate):
     def get_qiskit(self):
         return ZGate()
 
+
+# Pauli gate to QuantumCircuit functionality
+from .. import QuantumCircuit
+def x(self,q):
+    self.register.qubits[q].apply(X())
+    self.register.identity_layer(q)
+    return self
+def y(self,q):
+    self.register.qubits[q].apply(Y())
+    self.register.identity_layer(q)
+    return self
+def z(self,q):
+    self.register.qubits[q].apply(Z())
+    self.register.identity_layer(q)
+    return self
+
+QuantumCircuit.x = x
+QuantumCircuit.y = y
+QuantumCircuit.y = z
+
+
 # Necessary import
 from .ladder import Creation,Annihilation
 from .identity import I

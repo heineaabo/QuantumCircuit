@@ -121,8 +121,8 @@ class QuantumCircuit:
             a (int)   - Orbital to create
             h (float) - Matrix element
         """
-        self.register.add_annihilation(i)
-        self.register.add_creation(a)
+        self.a(i)
+        self.adg(a)
         self.factor *= h
 
     def insert_two_body_operator(self,v,i,j,a,b):
@@ -137,10 +137,10 @@ class QuantumCircuit:
             b (int)   - Orbital to create
             v (float) - Matrix element
         """
-        self.register.add_annihilation(i)
-        self.register.add_annihilation(j)
-        self.register.add_creation(b)
-        self.register.add_creation(a)
+        self.a(i)
+        self.a(j)
+        self.adg(b)
+        self.adg(a)
         self.factor *= v
 
     def to_qiskit(self,qc=None,qb=None,cb=None):

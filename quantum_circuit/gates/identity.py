@@ -30,3 +30,23 @@ class I(Gate):
     #    if isinstance(other,Gate):
     #        other.factor *= self.factor
     #        return other
+
+# Identity gate to QuantumCircuit functionality
+from .. import QuantumCircuit,QuantumRegister
+def identity(self,q):
+    self.register.qubits[q].append(I())
+    self.register.identity_layer(q)
+    return self
+QuantumCircuit.identity = identity
+
+# Register functionality
+def identity_layer(self,i,to_ctrl=True):
+    """
+    Add layer to circuit -> identity gates on all qubits except i.
+    """
+    self.controls.append(I())
+    for j,q in enumerate(self.qubits):
+        if j != i:
+            q.apply(I())
+QuantumRegister.identity_layer = identity_layer
+
