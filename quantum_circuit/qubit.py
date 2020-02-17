@@ -45,32 +45,6 @@ class Qubit:
         else:
             self.circ.insert(i,gate)
             
-    def optimize(self):
-        if len(self.circ) > 0:
-            new = [self.circ[0]]
-            for i in range(1,len(self.circ)):
-                gate1 = new[-1]
-                gate2 = self.circ[i]
-                gate = gate1*gate2
-                if isinstance(gate,Gate):
-                    new[-1] = gate
-                elif isinstance(gate,tuple):
-                    new[-1] = gate[0]
-                    new.append(gate[1])
-                elif isinstance(gate,list):
-                    # Dont transform
-                    new.append(gate2)
-                else:
-                    print(gate,gate1,gate2,new,self.circ,self.name)
-                    raise ValueError('WRONG')
-            factor = 1
-            for i in reversed(range(len(new))):
-                if isinstance(new[i],I):
-                    factor *= new[i].factor
-                    new.pop(i)
-            self.circ = new
-            self.factor *= factor
-
     def defactor(self):
         for i in range(len(self.circ)):
             # Add to qubit factor

@@ -86,7 +86,30 @@ class QuantumRegister:
 
     def optimize(self):
         for i in range(self.n):
-            self[i].optimize()
+            if len(self[i].circ) > 0:
+                new = [self[i].circ[0]]
+                for i in range(1,len(self[i].circ)):
+                    gate1 = new[-1]
+                    gate2 = self[i].circ[i]
+                    gate = gate1*gate2
+                    if isinstance(gate,Gate):
+                        new[-1] = gate
+                    elif isinstance(gate,tuple):
+                        new[-1] = gate[0]
+                        new.append(gate[1])
+                    elif isinstance(gate,list):
+                        # Dont transform
+                        new.append(gate2)
+                    else:
+                        print(gate,gate1,gate2,new,self.circ,self.name)
+                        raise ValueError('WRONG')
+                factor = 1
+                for i in reversed(range(len(new))):
+                    if isinstance(new[i],I):
+                        factor *= new[i].factor
+                        new.pop(i)
+                self[i].circ = new
+                self[i].factor *= factor
 
     def check_ladder(self):
         """
