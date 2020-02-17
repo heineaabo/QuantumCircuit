@@ -49,7 +49,7 @@ class X(Gate):
             return [Id,z]
         elif isinstance(other,Zero):
             return Zero()
-        elif isinstance(other,H):
+        elif isinstance(other,(H,CTRL,TARG)):
             return (self,other)
     
     def get_qiskit(self):
@@ -92,7 +92,7 @@ class Y(Gate):
             return [Id,z]
         elif isinstance(other,Zero):
             return Zero()
-        elif isinstance(other,H):
+        elif isinstance(other,(H,CTRL,TARG)):
             return (self,other)
 
     def get_qiskit(self):
@@ -129,7 +129,7 @@ class Z(Gate):
             return -other
         elif isinstance(other,Zero):
             return Zero()
-        elif isinstance(other,H):
+        elif isinstance(other,(H,CTRL,TARG)):
             return (self,other)
 
     def get_qiskit(self):
@@ -153,7 +153,7 @@ def z(self,q):
 
 QuantumCircuit.x = x
 QuantumCircuit.y = y
-QuantumCircuit.y = z
+QuantumCircuit.z = z
 
 
 # Necessary import
@@ -161,3 +161,4 @@ from .ladder import Creation,Annihilation
 from .identity import I
 from .hadamard import H
 from .zero import Zero
+from .control import CTRL,TARG

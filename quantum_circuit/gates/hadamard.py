@@ -37,6 +37,10 @@ class H(Gate):
             return (self,other)
         elif isinstance(other,Zero):
             return Zero()
+        elif isinstance(other,CTRL):
+            return (self,other)
+        elif isinstance(other,TARG):
+            return (self,other)
 
     def get_qiskit(self):
         return HGate()
@@ -45,7 +49,7 @@ class H(Gate):
 # Hadamard gate to QuantumCircuit functionality
 from .. import QuantumCircuit
 def h(self,q):
-    self.register.qubits[q].append(H())
+    self.register.qubits[q].circ.append(H())
     self.register.identity_layer(q)
     return self
 QuantumCircuit.h = h
@@ -55,3 +59,4 @@ from .identity import I
 from .zero import Zero
 from .ladder import Creation,Annihilation
 from .pauli import X,Y,Z
+from .control import CTRL,TARG

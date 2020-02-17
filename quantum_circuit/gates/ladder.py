@@ -110,10 +110,11 @@ def adg(self,qbit,transf='jw'):
     """
     if transf.lower() == 'jw':
         for i in range(qbit):
-            self(Z(),i)
-        self(Creation(),qbit)
+            self.register.qubits[i].circ.append(Z())
+        self.register.qubits[qbit].circ.append(Creation())
         for j in range(qbit+1,self.register.n):
-            self(I(),j)
+            self.register.qubits[qbit].circ.append(I())
+        self.register.control_list.append(I())
 QuantumCircuit.adg = adg
 
 def a(self,qbit,transf='jw'):
@@ -128,10 +129,11 @@ def a(self,qbit,transf='jw'):
     """
     if transf.lower() == 'jw':
         for i in range(qbit):
-            self(Z(),i)
-        self(Creation(),qbit)
+            self.register.qubits[i].circ.append(Z())
+        self.register.qubits[qbit].circ.append(Annihilation())
         for j in range(qbit+1,self.register.n):
-            self(I(),j)
+            self.register.qubits[qbit].circ.append(I())
+        self.register.control_list.append(I())
 QuantumCircuit.a = a
 
 def transform_ladder_operators(self):

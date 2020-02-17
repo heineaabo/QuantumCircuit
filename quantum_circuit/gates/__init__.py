@@ -4,3 +4,4 @@ from .identity import I
 from .hadamard import H
 from .ladder import Creation,Annihilation
 from .zero import Zero
+from .control import CTRL,TARG,CNOT
