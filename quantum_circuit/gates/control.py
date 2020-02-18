@@ -64,6 +64,7 @@ class CNOT(Gate):
         self.char = 'CX'
         self.gate = X()
 
+
 # QuantumCircuit functionality
 from .. import QuantumCircuit
 def cx(self,q1,q2):

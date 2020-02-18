@@ -56,3 +56,18 @@ q1(X(),0)
 q2.x(0)
 
 assert q1 == q2
+
+
+## CNOT
+qq = QuantumCircuit(3)
+qq.h(0)
+qq.h(1)
+qq.cx(0,2)
+qq.cx(1,2)
+qq.z(2)
+qq.cx(1,2)
+qq.cx(0,2)
+qq.h(0)
+qq.h(1)
+qq.gate_optimization()
+
