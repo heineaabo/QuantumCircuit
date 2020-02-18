@@ -4,4 +4,5 @@ from .qubit import Qubit
 from .hamiltonian import Hamiltonian
 from quantum_circuit.gates import *
 from quantum_circuit.utils import *
+from quantum_circuit.optimization import *
 

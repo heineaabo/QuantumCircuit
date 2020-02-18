@@ -16,8 +16,11 @@ class Qubit:
     def __repr__(self):
         return str(self.circ)
 
-    #def __getitem__(self,i):
-    #    return self.circ[i]
+    def __getitem__(self,i):
+        return self.circ[i]
+
+    def __iter__(self):
+        return iter(self.circ)
 
     def __eq__(self,other):
         if isinstance(other,Qubit):
@@ -60,16 +63,3 @@ class Qubit:
             if not gate.is_identity():
                 check = False
         return check
-
-    #def get_all_ladder(self):
-    #    """
-    #    Returns position of all ladder operations on qubit.
-    #    """
-    #    num_ladder = 0
-    #    ladder_operators = []
-    #    for i,gate in enumerate(self.circ):
-    #        if isinstance(gate,(Creation,Annihilation)):
-    #            ladder_operators.append(i)
-    #        else:
-    #            continue
-    #    return ladder_operators
