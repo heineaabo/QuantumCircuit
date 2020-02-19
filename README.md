@@ -4,7 +4,7 @@ Optimization tool for quantum computing aimed at electronic strucure calculation
 
 TODO:
   - Add control gates X
-  - Add rotation gates
+  - Add rotation gates X 
   - Add gate transformations
   - Add psi4 handling to get integrals
 
