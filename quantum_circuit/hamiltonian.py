@@ -2,15 +2,15 @@ import numpy as np
 from .circuit import QuantumCircuit
 from .gates import X,Y
 
-class Hamiltonian:
-    """
-    Second quantized hamiltonian.
-
-    Input:
-        n (int) - Number of particle.
-        l (int) - Number of spin orbitals.
-    """
+class SecondQuantizedHamiltonian:
     def __init__(self,n,l):
+        """
+        Second quantized hamiltonian.
+
+        Input:
+            n (int)    - Number of particle.
+            l (int)    - Number of spin orbitals.
+        """
         self.n = n
         self.l = l
         self.circuit = []
@@ -98,21 +98,7 @@ class Hamiltonian:
         return circuit_list
 
 
+class ExponentialHamiltonian:
+    def __init__(self,n,l):
+        pass
 
-def get_permutations(n):
-    """
-    Give all possible (2^n) permutations of X and Y in an N-term chain.
-    """
-    from itertools import permutations
-    ops = permutations('xy'*n,n)
-    unique = []
-    for op in ops:
-        if op not in unique:
-            unique.append(op)
-    perms = []
-    for elem in unique:
-        new = []
-        for o in elem:
-            new.append(X(factor=0.5) if o == 'x' else Y(factor=0.5*complex(0,1)))
-        perms.append(new)
-    return perms

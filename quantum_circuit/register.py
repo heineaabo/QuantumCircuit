@@ -57,7 +57,7 @@ class QuantumRegister:
 
         else: # Control qubit gate
             pass
-    
+
     ### REWRITE
     def get_length(self):
         l = []
@@ -76,16 +76,6 @@ class QuantumRegister:
             self.factor *= self[i].factor
             self[i].factor = 1
 
-    def check_ladder(self):
-        """
-        Returns information about qubits with ladder operators.
-        """
-        information =[]
-        for i in range(self.n):
-            info = self[i].get_all_ladder()
-            if len(info) > 0:
-                information.append([i,info])
-        return information
 
     def append(self,qbit,check_name=True):
         """
