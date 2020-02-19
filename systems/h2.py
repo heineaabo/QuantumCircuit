@@ -9,7 +9,7 @@ from openfermionpsi4 import run_psi4
 
 import sys
 sys.path.append('..')
-from quantum_circuit import Hamiltonian, QuantumCircuit
+from quantum_circuit import SecondQuantizedHamiltonian, QuantumCircuit
 from quantum_circuit.utils import molecular2sec_quant
 
 def openferm2circ(op):
@@ -37,7 +37,7 @@ qubit_hamiltonian.compress()
 #print('The Jordan-Wigner Hamiltonian in canonical basis follows:\n{}'.format(qubit_hamiltonian))
 
 
-h2_my = Hamiltonian(2,4)
+h2_my = SecondQuantizedHamiltonian(2,4)
 one,two = molecular2sec_quant(h_pq,h_pqrs)
 h2_my.set_integrals(one,two,nuc_repulsion)
 h2_my.get_circuit()
