@@ -10,8 +10,8 @@ TODO:
 
 
 Changes from master:
-    - Controlled operations 
-    - Qiskit-like implementation of gates
-    - Printing gate per gate for each qubit to easier handle controlled gates
-        - Negative: Have to reimplement identity gates in between
+  - Controlled operations
+  - Qiskit-like implementation of gates
+  - Printing gate per gate for each qubit to easier handle controlled gates
+    - Negative: Have to reimplement identity gates in between
 
