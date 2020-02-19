@@ -21,6 +21,9 @@ assert I() != X()
 assert I() != Y()
 assert I() != Z()
 assert I() != H()
+assert I() != Rx()
+assert I() != Ry()
+assert I() != Rz()
 
 assert X() != Y()
 assert X() != Z()
@@ -29,11 +32,6 @@ assert Y() != Z()
 assert X() != H()
 assert Y() != H()
 assert Z() != H()
-
-assert I().is_identity() == True
-assert X().is_identity() == False
-assert Y().is_identity() == False
-assert Z().is_identity() == False
 
 ### Identity
 assert I()*I() == I()
@@ -49,6 +47,15 @@ assert I()*Z() == Z()
 
 assert H()*I() == H()
 assert I()*H() == H()
+
+assert I().is_identity() == True
+assert X().is_identity() == False
+assert Y().is_identity() == False
+assert Z().is_identity() == False
+assert H().is_identity() == False
+assert Rx().is_identity() == False
+assert Ry().is_identity() == False
+assert Rz().is_identity() == False
 
 ### Pauli (Opposite of normal, since gates act to the left?)
 i = complex(0,1)
@@ -113,3 +120,31 @@ assert H()*Zero() == Zero()
 assert I()*Zero() == Zero()
 assert Creation()*Zero() == Zero()
 assert Annihilation()*Zero() == Zero()
+
+# Rotation
+
+assert Rx() == Rx()
+assert Ry() == Ry()
+assert Rz() == Rz()
+
+assert Rx() != Ry()
+assert Rx() != Rz()
+assert Ry() != Rz()
+
+assert Rx() != Rx(10)
+assert Ry() != Ry(10)
+assert Rz() != Rz(10)
+
+# Control gates
+assert CTRL(1) == CTRL(1)
+assert TARG(1,X()) == TARG(1,X())
+
+assert CTRL(1) != TARG(1,X())
+assert CTRL(2) != CTRL(1)
+assert TARG(1,X()) != TARG(2,X())
+assert TARG(1,X()) != TARG(1,Y())
+
+
+assert C(X(),0,1) == C(X(),0,1)
+assert C(X(),1,2) != C(X(),0,1)
+assert C(X(),0,1) != C(Y(),0,1)

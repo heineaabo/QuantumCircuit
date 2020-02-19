@@ -1,7 +1,7 @@
 import sys
 sys.path.append('..')
 from quantum_circuit import QuantumCircuit
-from quantum_circuit.gates import X,Y,Z,I
+from quantum_circuit.gates import X,Y,Z,I,H
 
 qc1 = QuantumCircuit(2)
 qc1(X(),0)
@@ -70,4 +70,21 @@ qq.cx(0,2)
 qq.h(0)
 qq.h(1)
 qq.gate_optimization()
+
+
+qc1 = QuantumCircuit(3)
+qc1.h(0)
+qc1.h(1)
+qc1.h(2)
+qc1.x(1)
+qc1.y(2)
+qc2 = QuantumCircuit(3)
+qc2.h(0)
+qc2.h(2)
+qc2.x(1)
+qc2.y(2)
+qc2.insert_single_gate(H(),1,0)
+assert qc1 == qc2
+
+
 
