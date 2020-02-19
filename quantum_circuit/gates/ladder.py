@@ -97,7 +97,7 @@ class Annihilation(Ladder):
         return [x,y]
 
 # Ladder gate to QuantumCircuit functionality
-from .. import QuantumCircuit,Qubit
+from .. import QuantumCircuit,QuantumRegister,Qubit
 def adg(self,qbit,transf='jw'):
     """
     Add transformed creation operator to qubit.
@@ -136,57 +136,6 @@ def a(self,qbit,transf='jw'):
         self.register.control_list.append(I())
 QuantumCircuit.a = a
 
-def transform_ladder_operators(self):
-    self.gate_optimization()
-    info = self.register.check_ladder()
-    num = 0 # Number of new 
-    each_ladder = []
-    for elem in info:
-        i = elem[0]
-        for j in elem[1]:
-            num += 1
-            each_ladder.append([i,j])
-    copies = [self.copy() for i in range(2**num)]
-    perms = get_permutations(num)
-    assert len(copies) == len(perms)
-    for perm,circ in zip(perms,copies):
-        for j,gate in enumerate(perm):
-            qbit,ind = each_ladder[j]
-            gate.factor *= circ.register[qbit].circ[ind].factor
-            if isinstance(circ.register[qbit].circ[ind],Creation)\
-                    and isinstance(gate,Y):
-                gate.factor *= -1
-            circ.register[qbit].circ[ind] = gate
-    for circ in copies:
-        circ.gate_optimization()
-        circ.defactor()
-    unique = [copies[0]]
-    for circ1 in copies[1:]:
-        check = False
-        for circ2 in unique:
-            if circ1.register == circ2.register:
-                circ2.factor += circ1.factor
-                check = True
-                break
-        if not check:
-            unique.append(circ1)
-    return unique
-QuantumCircuit.transform_ladder_operators = transform_ladder_operators
-
-# Qubit functionality
-def get_all_ladder(self):
-    """
-    Returns position of all ladder operations on qubit.
-    """
-    num_ladder = 0
-    ladder_operators = []
-    for i,gate in enumerate(self.circ):
-        if isinstance(gate,(Creation,Annihilation)):
-            ladder_operators.append(i)
-        else:
-            continue
-    return ladder_operators
-Qubit.get_all_ladder = get_all_ladder
 
 # Necessary imports
 from .pauli import X,Y,Z

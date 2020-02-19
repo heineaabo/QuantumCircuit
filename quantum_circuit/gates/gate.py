@@ -28,15 +28,15 @@ class Gate:
         if isinstance(other,(int,float,complex)):
             self.factor *= other
             return self
-        else:
-            raise ValueError('Can not multiply instance {} with instance {}'.format(type(self),type(other)))
+        #else:
+        #    raise ValueError('Can not multiply instance {} with instance {}'.format(type(self),type(other)))
         
     def __rmul__(self,other):
         if isinstance(other,(int,float,complex)):
             self.factor *= other
             return self
-        else:
-            raise ValueError('Can not multiply instance {} with instance {}'.format(type(self),type(other)))
+        #else:
+        #    raise ValueError('Can not multiply instance {} with instance {}'.format(type(self),type(other)))
 
     def __neg__(self):
         self.factor *= -1
