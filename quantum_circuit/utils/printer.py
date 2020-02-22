@@ -27,7 +27,7 @@ class Printer:
         else:
             return top+'\n'+mid+'\n'+bot+'\n'
 
-    def print_control(self,up=False):
+    def print_control(self,up=False,extra=0):
         """
         Print control qubit operation
         Up: True if control going upwards, false if downwards
@@ -51,17 +51,25 @@ class Printer:
         top = s+s+s+T+s+s+s
         mid = h+h+h+M+h+h+h
         bot = s+s+s+B+s+s+s
+        for i in range(extra):
+            top += s
+            mid += h
+            bot += s
         return top,mid,bot
 
-    def print_line(self):
+    def print_line(self,extra=0):
         h  = '─'
         s  = ' '
         top = s+s+s+s+s+s+s
         mid = h+h+h+h+h+h+h
         bot = s+s+s+s+s+s+s
+        for i in range(extra):
+            top += s
+            mid += h
+            bot += s
         return top,mid,bot
 
-    def print_gate(self,gate,c_up=False,c_down=False):
+    def print_gate(self,gate,c_up=False,c_down=False,extra=0):
         rt = '┐'
         lt = '┌'
         lb = '└'
@@ -79,12 +87,20 @@ class Printer:
             above = mt
         if c_down:
             below = mb
-        top = s + lt + h +   above   + h + rt + s
+
+        k = len(gate.char)
+
+        top = s + lt + h +   above*k   + h + rt + s
         mid = h + lv + s + gate.char + s + rv + h
-        bot = s + lb + h +   below   + h + rb + s
+        bot = s + lb + h +   below*k   + h + rb + s
+        if extra != 0 and len(gate.char) == 1:
+            for i in range(extra):
+                top += s
+                mid += h
+                bot += s
         return top,mid,bot
     
-    def print_identity(self,c=False):
+    def print_identity(self,c=False,extra=0):
         """
         c -> True if qubit is in between controlled operation
         """
@@ -102,6 +118,10 @@ class Printer:
         top = s+s+s+T+s+s+s
         mid = h+h+h+M+h+h+h
         bot = s+s+s+B+s+s+s
+        for i in range(extra):
+            top += s
+            mid += h
+            bot += s
         return top,mid,bot
 
     def print_circuit(self,circuit,eco=False):
@@ -113,6 +133,7 @@ class Printer:
         max_len = max([len(i) for i in to_print])
         ctrl = False
         for i in range(max_len):
+            extra_space = self.check_all_qubit_chars(to_print,i)
             if not circuit.register.control_list[i].is_identity():
                 ctrl = True
                 c = circuit.register.control_list[i].c
@@ -122,21 +143,21 @@ class Printer:
                 if ctrl:
                     if j == c:
                         if c < t:
-                            top,mid,bot = self.print_control()
+                            top,mid,bot = self.print_control(extra=extra_space)
                         else:
-                            top,mid,bot = self.print_control(up=True)
+                            top,mid,bot = self.print_control(up=True,extra=extra_space)
                     elif j == t:
-                        top,mid,bot = self.print_gate(cgate,c_up=True)
+                        top,mid,bot = self.print_gate(cgate,c_up=True,extra=extra_space)
                     elif c != -1 and t != -1 and  j < t and j > c:
-                        top,mid,bot = self.print_identity(c=True)
+                        top,mid,bot = self.print_identity(c=True,extra=extra_space)
                     else:
-                        top,mid,bot = self.print_identity()
+                        top,mid,bot = self.print_identity(extra=extra_space)
                 else:
                     gate = q[i]
                     if gate.is_identity():
-                        top,mid,bot = self.print_identity()
+                        top,mid,bot = self.print_identity(extra=extra_space)
                     else:
-                        top,mid,bot = self.print_gate(gate)
+                        top,mid,bot = self.print_gate(gate,extra=extra_space)
                 qubits[j][0] += top
                 qubits[j][1] += mid
                 qubits[j][2] += bot
@@ -149,4 +170,10 @@ class Printer:
                 string += l+'\n'
         return string
                 
+    def check_all_qubit_chars(self,circuit,i):
+        mx = 0
+        for q in circuit:
+            if len(q[i].char) > mx:
+                mx = len(q[i].char)
+        return mx-1
 

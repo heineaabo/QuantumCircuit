@@ -15,10 +15,12 @@ class SecondQuantizedHamiltonian:
         self.l = l
         self.circuit = []
 
-    def set_integrals(self,one_body,two_body,nuclear_repulsion=None):
+    def set_integrals(self,one_body,two_body,nuclear_repulsion=None,anti_symmetric=False):
         self.h = one_body
         self.v = two_body
         self.nuclear_repulsion = nuclear_repulsion
+        if anti_symmetric:
+            self.v *= 0.25
 
     def get_circuit(self):
         circuits = []
@@ -42,6 +44,7 @@ class SecondQuantizedHamiltonian:
                     for a in range(self.l):
                         if not np.isclose(self.v[i,j,b,a],0):
                             qc = QuantumCircuit(self.l)
+                            k = 1
                             qc.insert_two_body_operator(self.v[i,j,b,a],i,j,b,a)
                             circ = qc.transform_ladder_operators()
                             circuits += circ
