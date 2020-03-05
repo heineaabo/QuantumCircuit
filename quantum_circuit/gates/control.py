@@ -158,3 +158,4 @@ QuantumCircuit.cz = cz
 
 # Necessary imports
 from .pauli import X
+from .rotation import Rotation

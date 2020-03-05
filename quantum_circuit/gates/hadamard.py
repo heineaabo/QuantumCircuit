@@ -41,6 +41,8 @@ class H(Gate):
             return (self,other)
         elif isinstance(other,TARG):
             return (self,other)
+        elif isinstance(other,Rotation):
+            return (self,other)
 
     def get_qiskit(self):
         return HGate()
@@ -60,3 +62,4 @@ from .zero import Zero
 from .ladder import Creation,Annihilation
 from .pauli import X,Y,Z
 from .control import CTRL,TARG
+from .rotation import Rotation
