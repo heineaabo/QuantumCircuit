@@ -1,9 +1,12 @@
 import numpy as np
 from .circuit import QuantumCircuit
+from .utils import molecular2sec_quant
 from .gates import X,Y
 
 class SecondQuantizedHamiltonian:
-    def __init__(self,n,l):
+    def __init__(self,n,l,
+                 one_body,two_body,
+                 nuclear_repulsion=None,anti_symmetric=False,add_spin=False):
         """
         Second quantized hamiltonian.
 
@@ -13,14 +16,16 @@ class SecondQuantizedHamiltonian:
         """
         self.n = n
         self.l = l
-        self.circuit = []
-
-    def set_integrals(self,one_body,two_body,nuclear_repulsion=None,anti_symmetric=False):
         self.h = one_body
         self.v = two_body
+        if add_spin:
+            self.h,self.v = molecular2sec_quant(self.h,self.v)
         self.nuclear_repulsion = nuclear_repulsion
         if anti_symmetric:
             self.v *= 0.25
+
+        self.circuit = []
+        self.get_circuit()
 
     def get_circuit(self):
         circuits = []
@@ -44,7 +49,6 @@ class SecondQuantizedHamiltonian:
                     for a in range(self.l):
                         if not np.isclose(self.v[i,j,b,a],0):
                             qc = QuantumCircuit(self.l)
-                            k = 1
                             qc.insert_two_body_operator(self.v[i,j,b,a],i,j,b,a)
                             circ = qc.transform_ladder_operators()
                             circuits += circ
@@ -71,6 +75,7 @@ class SecondQuantizedHamiltonian:
                 unique_circs.append(circ1)
         for i in reversed(range(len(unique_circs))):
             circ = unique_circs[i]
+            before = circ.factor
             if np.isclose(circ.factor,0):
                 unique_circs.pop(i)
         return unique_circs
