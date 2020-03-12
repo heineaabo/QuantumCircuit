@@ -8,6 +8,7 @@ TODO:
   - Control gate optimization
   - Add gate transformations
   - Add psi4 handling to get integrals
+  - Add 0 and 1 occupation convention for ladder operators and their products.
 
 
 Changes from master:
