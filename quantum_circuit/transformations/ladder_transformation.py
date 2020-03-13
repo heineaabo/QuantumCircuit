@@ -4,7 +4,7 @@ from ..utils import get_permutations
 def transform_ladder_operators(self):
     # Optimize circuit to minimize actions
     self.gate_optimization()
-    
+
     # Find all ladder operators in circuit
     # with information about qubit and position on qubit.
     info = self.register.check_ladder()
@@ -27,10 +27,12 @@ def transform_ladder_operators(self):
     for perm,circ in zip(perms,copies):
         for j,gate in enumerate(perm):
             qbit,ind = each_ladder[j]
-            gate.factor *= circ.register[qbit].circ[ind].factor
-            if isinstance(circ.register[qbit].circ[ind],Creation)\
-                    and isinstance(gate,Y):
-                        gate.factor *= -1
+            lad_gate = circ.register[qbit].circ[ind]
+            gate.factor *= lad_gate.factor
+            if (isinstance(lad_gate,Creation) and lad_gate.conv == 1) and isinstance(gate,Y):
+                gate.factor *= -1
+            elif (isinstance(lad_gate,Annihilation) and lad_gate.conv == 0) and isinstance(gate,Y):
+                gate.factor *= -1
             circ.register[qbit].circ[ind] = gate
 
     # Optimize each copy
@@ -38,7 +40,7 @@ def transform_ladder_operators(self):
         circ.gate_optimization()
         circ.defactor()
 
-    # Sum all copies so that equivalent circuits are ot evaluated multiple times.
+    # Sum all copies so that equivalent circuits are not evaluated multiple times.
     unique = [copies[0]]
     for circ1 in copies[1:]:
         check = False
