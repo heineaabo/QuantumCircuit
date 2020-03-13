@@ -1,4 +1,5 @@
 from .gate import Gate
+from qiskit.extensions.standard import CnotGate
 
 class CTRL(Gate):
     def __init__(self,i):
@@ -12,9 +13,10 @@ class CTRL(Gate):
             return self
 
         elif isinstance(other,Gate):
-            return (self,other)
-        elif isinstance(other,Rotation):
-            return (self,other)
+            if other.is_identity():
+                self.factor *= other.factor
+                return self
+        return (self,other)
     
     def __rmul__(self,other):
         if isinstance(other,(int,float,complex)):
@@ -25,10 +27,7 @@ class CTRL(Gate):
             if other.is_identity():
                 self.factor *= other.factor
                 return self
-            else:
-                return (self,other)
-        elif isinstance(other,Rotation):
-            return (other,self)
+        return (other,self)
 
     def __eq__(self,other):
         if isinstance(other,CTRL):
@@ -114,6 +113,8 @@ class CNOT(ControlGate):
         self.char = 'CX'
         self.gate = X()
 
+    def get_qiskit(self):
+        return CnotGate()
 
 class C(ControlGate):
     def __init__(self,gate,ctrl,targ):
@@ -156,6 +157,7 @@ def cz(self,q1,q2):
     return self
 QuantumCircuit.cz = cz
 
+
 # Necessary imports
-from .pauli import X
+from .pauli import X,Y,Z
 from .rotation import Rotation

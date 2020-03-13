@@ -24,7 +24,9 @@ class QuantumRegister:
         self.printable_circuit = None
 
     def __repr__(self):
-        return str(self.factor)+str(self.qubits)
+        if self.factor == 1:
+            return str(self.qubits)
+        return str(self.factor)+'*'+str(self.qubits)
 
     def __eq__(self,other):
         if isinstance(other,QuantumRegister):
@@ -41,6 +43,9 @@ class QuantumRegister:
                     if sum(check) == self.n:
                         return True
         return False
+
+    def __len__(self):
+        return len(self.qubits)
 
     def __iter__(self):
         return iter(self.qubits)

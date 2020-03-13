@@ -6,6 +6,7 @@ from .ladder import Creation,Annihilation
 from .zero import Zero
 from .control import CTRL,TARG,CNOT,C
 from .rotation import Rotation,Rx,Ry,Rz
+from .phase import Ph
 
 from .. import QuantumCircuit
 def insert_single_gate(self,gate,qbit,ind):
@@ -27,10 +28,10 @@ def insert_control_gate(self,control_gate,ind):
         if i == control_gate.c:
             self.register.qubits[i].circ.insert(ind,ctrl)
             continue
-        if i == control_gate.t:
+        elif i == control_gate.t:
             self.register.qubits[i].circ.insert(ind,targ)
             continue
-        self.register.qubits[i].circ.insert(ind,I())
-    self.register.control_list.insert(ind,I())
+        else:
+            self.register.qubits[i].circ.insert(ind,I())
 QuantumCircuit.insert_control_gate = insert_control_gate
 

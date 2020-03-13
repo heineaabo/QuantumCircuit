@@ -19,10 +19,7 @@ class Gate:
             if type(self) == type(other)\
                     and self.factor == other.factor:
                 return True
-            else:
-                return False
-        else:
-            return False
+        return False
 
     def __mul__(self,other):
         if isinstance(other,(int,float,complex)):

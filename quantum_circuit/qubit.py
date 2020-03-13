@@ -22,6 +22,9 @@ class Qubit:
     def __iter__(self):
         return iter(self.circ)
 
+    def __len__(self):
+        return len(self.circ)
+
     def __eq__(self,other):
         if isinstance(other,Qubit):
             self.remove_identity()

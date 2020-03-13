@@ -37,19 +37,17 @@ class X(Gate):
             i = complex(0,1)
             k = self.factor*other.factor
             return i*k*Y()
-        elif isinstance(other,Creation):
-            k = self.factor*other.factor
-            Id = 0.5*k*I() 
-            z = -0.5*k*Z()
-            return [Id,z]
-        elif isinstance(other,Annihilation):
+        elif isinstance(other,Ladder):
             k = self.factor*other.factor
             Id = 0.5*k*I() 
             z = 0.5*k*Z()
+            if (isinstance(other,Creation) and other.conv == 1)\
+                    or (isinstance(other,Annihilation) and other.conv == 0):
+                z.factor *= -1
             return [Id,z]
         elif isinstance(other,Zero):
             return Zero()
-        elif isinstance(other,(H,CTRL,TARG)):
+        else:
             return (self,other)
     
     def get_qiskit(self):
@@ -78,21 +76,18 @@ class Y(Gate):
             i = complex(0,1)
             k = self.factor*other.factor
             return -i*k*X()
-        elif isinstance(other,Creation):
-            i = complex(0,1)
-            k = self.factor*other.factor
-            Id = -0.5*i*k*I() 
-            z = 0.5*i*k*Z()
-            return [Id,z]
-        elif isinstance(other,Annihilation):
+        elif isinstance(other,Ladder):
             i = complex(0,1)
             k = self.factor*other.factor
             Id = 0.5*i*k*I() 
             z = 0.5*i*k*Z()
+            if (isinstance(other,Creation) and other.conv == 1)\
+                    or (isinstance(other,Annihilation) and other.conv == 0):
+                Id.factor *= -1
             return [Id,z]
         elif isinstance(other,Zero):
             return Zero()
-        elif isinstance(other,(H,CTRL,TARG)):
+        else:
             return (self,other)
 
     def get_qiskit(self):
@@ -121,15 +116,15 @@ class Z(Gate):
             i = complex(0,1)
             k = self.factor * other.factor
             return i*k*X()
-        elif isinstance(other,Creation):
+        elif isinstance(other,Ladder):
             other.factor *= self.factor
+            if (isinstance(other,Creation) and other.conv == 0)\
+                    or (isinstance(other,Annihilation) and other.conv == 1):
+                other.factor *= -1
             return other
-        elif isinstance(other,Annihilation):
-            other.factor *= self.factor
-            return -other
         elif isinstance(other,Zero):
             return Zero()
-        elif isinstance(other,(H,CTRL,TARG)):
+        else:
             return (self,other)
 
     def get_qiskit(self):
@@ -157,8 +152,6 @@ QuantumCircuit.z = z
 
 
 # Necessary import
-from .ladder import Creation,Annihilation
+from .ladder import Creation,Annihilation,Ladder
 from .identity import I
-from .hadamard import H
 from .zero import Zero
-from .control import CTRL,TARG
