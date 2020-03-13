@@ -1,5 +1,5 @@
 from .. import QuantumCircuit,QuantumRegister,Qubit
-from ..gates import CTRL,TARG,I
+from ..gates import CTRL,TARG,I,Rotation
 
 # Qubit method
 def squeeze(self):
@@ -15,6 +15,11 @@ def squeeze(self):
             elif isinstance(gate,list):
                 # Dont transform
                 new.append(gate2)
+            elif isinstance(gate,I) and len(new) > 1:
+                self.factor *= gate.factor
+                new.pop(-1)
+            elif gate == None:
+                raise ValueError('Gate multiplication return None object {}*{} = None'.format(gate1,gate2))
             else:
                 new[-1] = gate
         factor = 1
@@ -118,6 +123,9 @@ def update_control_list(self):
         assert inds[0] <= max_len[0]
 
     self.printable_circuit = new_circ
+    for i,qbit_circ in enumerate(new_circ):
+        self[i].circ = qbit_circ
+
     self.control_list = new_control_list
 QuantumRegister.update_control_list = update_control_list
 

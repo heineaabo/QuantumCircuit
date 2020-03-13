@@ -77,6 +77,7 @@ assert Y()*H() == (Y(),H())
 assert Z()*H() == (Z(),H())
 
 ### Creation and annihilation
+# Conv 1
 assert Creation()*Creation() == Zero()
 assert Annihilation()*Annihilation() == Zero()
 
@@ -100,10 +101,38 @@ assert X()*Annihilation() == [(0.5)*I(),(0.5)*Z()]
 assert Y()*Annihilation() == [(0.5*i)*I(),(0.5*i)*Z()]
 assert Z()*Annihilation() == -Annihilation()
 assert H()*Annihilation() == (H(),Annihilation())
-
 # Transform
 assert Creation().transform() == [X(factor=0.5),Y(factor=-0.5*complex(0,1))]
 assert Annihilation().transform() == [X(factor=0.5),Y(factor=0.5*complex(0,1))]
+
+
+# Conv 0
+assert Annihilation(conv=0)*Annihilation(conv=0) == Zero()
+assert Creation(conv=0)*Creation(conv=0) == Zero()
+
+assert Annihilation(conv=0)*Creation(conv=0) == [0.5*I(),0.5*Z()]
+assert Creation(conv=0)*Annihilation(conv=0) == [0.5*I(),-0.5*Z()]
+
+assert Annihilation(conv=0)*X() == [(0.5)*I(),(0.5)*Z()]
+assert Annihilation(conv=0)*Y() == [(-0.5*i)*I(),(-0.5*i)*Z()]
+assert Annihilation(conv=0)*Z() == -Annihilation(conv=0)
+assert Annihilation(conv=0)*H() == (Annihilation(conv=0),H())
+assert X()*Annihilation(conv=0) == [(0.5)*I(),(-0.5)*Z()]
+assert Y()*Annihilation(conv=0) == [(-0.5*i)*I(),(0.5*i)*Z()]
+assert Z()*Annihilation(conv=0) == Annihilation(conv=0)
+assert H()*Annihilation(conv=0) == (H(),Annihilation(conv=0))
+
+assert Creation(conv=0)*X() == [(0.5)*I(),(-0.5)*Z()]
+assert Creation(conv=0)*Y() == [(0.5*i)*I(),(-0.5*i)*Z()]
+assert Creation(conv=0)*Z() == Creation(conv=0)
+assert Creation(conv=0)*H() == (Creation(conv=0),H())
+assert X()*Creation(conv=0) == [(0.5)*I(),(0.5)*Z()]
+assert Y()*Creation(conv=0) == [(0.5*i)*I(),(0.5*i)*Z()]
+assert Z()*Creation(conv=0) == -Creation(conv=0)
+assert H()*Creation() == (H(),Creation())
+# Transform
+assert Annihilation(conv=0).transform() == [X(factor=0.5),Y(factor=-0.5*complex(0,1))]
+assert Creation(conv=0).transform() == [X(factor=0.5),Y(factor=0.5*complex(0,1))]
 
 ### Zero
 assert Zero()*X() == Zero()

@@ -127,6 +127,7 @@ class Printer:
     def print_circuit(self,circuit,eco=False):
         if circuit.register.printable_circuit == None:
             circuit.register.update_control_list()
+        assert circuit.register.printable_circuit != None
         to_print = circuit.register.printable_circuit
 
         qubits = [['','',''] for i in range(circuit.register.n)]
