@@ -64,7 +64,7 @@ def check_ladder(self):
         if len(info) > 0:
             information.append([i,info])
     return information
-QuantumRegister.check_ladder = check_ladder
+QuantumCircuit.check_ladder = check_ladder
 
 def get_all_ladder(self):
     """
