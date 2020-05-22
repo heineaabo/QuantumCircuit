@@ -15,6 +15,7 @@ def insert_one_body_operator(self,h,i,a,conv=1):
     self.a(i,conv=conv)
     self.adg(a,conv=conv)
     self.factor *= h
+    return self.transform_ladder_operators()
 QuantumCircuit.insert_one_body_operator = insert_one_body_operator
 
 def insert_two_body_operator(self,v,i,j,a,b,conv=1):
@@ -35,6 +36,7 @@ def insert_two_body_operator(self,v,i,j,a,b,conv=1):
     self.adg(b,conv=conv)
     self.adg(a,conv=conv)
     self.factor *= v
+    return self.transform_ladder_operators()
 QuantumCircuit.insert_two_body_operator = insert_two_body_operator
 
 def insert_pauli_string(self,Pstr,exp=False):

@@ -70,8 +70,8 @@ class QuantumCircuit:
         """
         if isinstance(other,QuantumCircuit):
             if self.n == other.n: # Same amount of qubits
-                self.defactor()
-                other.defactor()
+                #self.defactor()
+                #other.defactor()
                 for i in range(self.n):
                     if self.qubits[i] != other.qubits[i]:
                         return False
