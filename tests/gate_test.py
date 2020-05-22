@@ -57,7 +57,7 @@ assert Rx().is_identity() == False
 assert Ry().is_identity() == False
 assert Rz().is_identity() == False
 
-### Pauli (Opposite of normal, since gates act to the left?)
+### Pauli (Opposite of normal, since gates act to the left)
 i = complex(0,1)
 assert X()*Y() == -i*Z()
 assert Y()*X() == i*Z()

@@ -86,8 +86,15 @@ qc2.y(2)
 qc2.insert_single_gate(H(),1,0)
 assert qc1 == qc2
 
+qc = QuantumCircuit(4)
+qc.insert_two_body_operator(1,0,1,0,1)
+#qc.gate_optimization()
+circ = qc.transform_ladder_operators()
+print(circ)
+#for i in circ: print(i)
 
-expQC = QuantumCircuit(4)
-expQC.insert_pauli_string(['XYXY',[0,1,2,3],1],exp=True)
-expQC.gate_optimization()
-print(expQC)
+
+#expQC = QuantumCircuit(4)
+#expQC.insert_pauli_string(['XYXY',[0,1,2,3],1],exp=True)
+#expQC.gate_optimization()
+#print(expQC)
