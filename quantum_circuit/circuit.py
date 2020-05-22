@@ -30,7 +30,7 @@ class QuantumCircuit:
             gate   (str)   - Quantum gate to be applied.
             q1     (int)   - Target qubit (if q2 is not it specifies the control qubit.)
             q2     (int)   - (Optional) Target qubit.
-            phi    (float) - Roation angle if gate is rotation gate.
+            phi    (float) - Rotation angle if gate is rotation gate.
             factor (float) - Factor to be added to gate.
         """
         if q2 != None:
@@ -42,6 +42,7 @@ class QuantumCircuit:
         self.register(to_be_appended,q1,q2,phi) # REWRITE
 
     def __str__(self):
+        self.register.update_control_list()
         return Printer().print_circuit(self,eco=self.eco_print)
 
     def __repr__(self):
@@ -49,8 +50,8 @@ class QuantumCircuit:
 
     def __eq__(self,other):
         if isinstance(other,QuantumCircuit):
-            self.defactor()
-            other.defactor()
+            #self.defactor()
+            #other.defactor()
             if self.register == other.register and self.factor == other.factor:
                 return True
         return False

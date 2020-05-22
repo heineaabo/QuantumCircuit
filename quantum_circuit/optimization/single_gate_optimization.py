@@ -22,7 +22,12 @@ def squeeze(self):
                 raise ValueError('Gate multiplication return None object {}*{} = None'.format(gate1,gate2))
             else:
                 new[-1] = gate
+        # Remove identity if len(new) = 1
         factor = 1
+        #if new[0].is_identity():
+        #    factor *= new[0].factor
+        #    new.pop(0)
+        # OLD IDENTITY REMOVE (INEFFICIENT)
         for j in reversed(range(len(new))):
             if new[j].is_identity():
                 factor *= new[j].factor
@@ -132,7 +137,7 @@ QuantumRegister.update_control_list = update_control_list
 def squeeze(self):
     for qbit in self.qubits:
         qbit.squeeze()
-    self.update_control_list() # Maybe set printable_list as register?
+    #self.update_control_list() # Maybe set printable_list as register?
 QuantumRegister.squeeze = squeeze
 
 
