@@ -1,5 +1,5 @@
 from .gate import Gate
-from qiskit.extensions.standard import XGate,YGate,ZGate
+from qiskit.extensions.standard import XGate,YGate,ZGate,HGate,IdGate,RXGate,SdgGate
 
 ##################################################################################
 #                       Info on implementation                                   #
@@ -50,8 +50,14 @@ class X(Gate):
         else:
             return (self,other)
     
-    def get_qiskit(self):
-        return XGate()
+    def to_qiskit(self,qc,qubit,transform=False):
+        if transform:
+            qc.append(HGate(),[qubit],[])
+            return qc
+        else:
+            qc.append(XGate(),[qubit],[])
+            return qc
+
 
 class Y(Gate):
     def __init__(self,factor=complex(1,0)):
@@ -90,8 +96,14 @@ class Y(Gate):
         else:
             return (self,other)
 
-    def get_qiskit(self):
-        return YGate()
+    def to_qiskit(self,qc,qubit,transform=False):
+        if transform:
+            qc.append(SdgGate(),[qubit],[])
+            qc.append(HGate(),[qubit],[])
+            return qc
+        else:
+            qc.append(YGate(),[qubit],[])
+            return qc
 
 class Z(Gate):
     def __init__(self,factor=complex(1,0)):
@@ -127,9 +139,13 @@ class Z(Gate):
         else:
             return (self,other)
 
-    def get_qiskit(self):
-        return ZGate()
-
+    def to_qiskit(self,qc,qubit,transform=False):
+        if transform:
+            qc.append(IdGate(),[qubit],[])
+            return qc
+        else:
+            qc.append(ZGate(),[qubit],[])
+            return qc
 
 # Pauli gate to QuantumCircuit functionality
 from .. import QuantumCircuit
