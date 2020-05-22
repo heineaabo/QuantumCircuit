@@ -81,4 +81,4 @@ def get_all_ladder(self):
 Qubit.get_all_ladder = get_all_ladder
 
 # Necessary imports 
-from ..gates import X,Y,Creation,Annihilation,H,CNOT,Rx,Ry,Rz
+from ..gates import X,Y, Creation,Annihilation
