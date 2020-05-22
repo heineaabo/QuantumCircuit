@@ -192,7 +192,8 @@ class SecondQuantizedHamiltonian(Hamiltonian):
         for i,circ1 in enumerate(circuits[1:]):
             check = False
             for j,circ2 in enumerate(unique_circs):
-                if circ1.register == circ2.register:
+                #if circ1.register == circ2.register:
+                if circ1.equal_to(circ2): 
                     check = True
                     unique_circs[j].factor += circ1.factor
             if not check:
@@ -220,11 +221,11 @@ class SecondQuantizedHamiltonian(Hamiltonian):
             assert isinstance(self.circuit,QuantumCircuit)
             # single gate represented as [char,factor,qubit(,2nd qubit)]
             # with factor = 1 if not rotation gate
-            control_list = self.circuit.register.control_list
-            register = self.circuit.register
+            control_list = self.circuit.control_list
+            circuit = self.circuit
             for i,gate in enumerate(control_list):
                 if gate.is_identity(): # No control gates
-                    for j,qbit in enumerate(register):
+                    for j,qbit in enumerate(circuit.qubits):
                         if i < len(qbit):
                             if not qbit[i].is_identity(): # No need to add identity gates
                                 if isinstance(qbit[i],(Rotation,Ph)):
@@ -248,7 +249,7 @@ class SecondQuantizedHamiltonian(Hamiltonian):
             for circ in self.circuit:
                 gates = []
                 qubits = []
-                for i,qbit in enumerate(circ.register):
+                for i,qbit in enumerate(circ.qubits):
                     if len(qbit) == 1:
                         gates.append(qbit[0])
                         qubits.append(i)

@@ -61,7 +61,7 @@ def insert_pauli_string(self,Pstr,exp=False):
             self.ph(Pstr[2],0)
         else:
             targ_qbit = Pstr[1][-1]
-            ind = len(self.register.control_list) # Index to insert gates before Rz gate
+            ind = len(self.control_list) # Index to insert gates before Rz gate
             self.rz(targ_qbit,Pstr[2]*2) # On last qubit with rotation angle equal to factor
             for p,qbit in zip(Pstr[0][:-1],Pstr[1][:-1]):
                 if p == 'X':

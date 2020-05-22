@@ -132,12 +132,12 @@ def update_control_list(self):
         self[i].circ = qbit_circ
 
     self.control_list = new_control_list
-QuantumRegister.update_control_list = update_control_list
+QuantumCircuit.update_control_list = update_control_list
 
 def squeeze(self):
     for qbit in self.qubits:
         qbit.squeeze()
     #self.update_control_list() # Maybe set printable_list as register?
-QuantumRegister.squeeze = squeeze
+QuantumCircuit.squeeze = squeeze
 
 

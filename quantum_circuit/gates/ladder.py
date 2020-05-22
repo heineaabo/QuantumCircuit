@@ -149,7 +149,7 @@ class Annihilation(Ladder):
         return [x,y]
 
 # Ladder gate to QuantumCircuit functionality
-from .. import QuantumCircuit,QuantumRegister,Qubit
+from .. import QuantumCircuit,Qubit #,QuantumRegister
 def adg(self,qbit,transf='jw',conv=1):
     """
     Add transformed creation operator to qubit.
@@ -163,11 +163,11 @@ def adg(self,qbit,transf='jw',conv=1):
     """
     if transf.lower() == 'jw':
         for i in range(qbit):
-            self.register.qubits[i].circ.append(Z())
-        self.register.qubits[qbit].circ.append(Creation(conv=conv))
-        for j in range(qbit+1,self.register.n):
-            self.register.qubits[qbit].circ.append(I())
-        self.register.control_list.append(I())
+            self.qubits[i].circ.append(Z())
+        self.qubits[qbit].circ.append(Creation(conv=conv))
+        for j in range(qbit+1,self.n):
+            self.qubits[qbit].circ.append(I())
+        self.control_list.append(I())
 QuantumCircuit.adg = adg
 
 def a(self,qbit,transf='jw',conv=1):
@@ -183,11 +183,11 @@ def a(self,qbit,transf='jw',conv=1):
     """
     if transf.lower() == 'jw':
         for i in range(qbit):
-            self.register.qubits[i].circ.append(Z())
-        self.register.qubits[qbit].circ.append(Annihilation(conv=conv))
-        for j in range(qbit+1,self.register.n):
-            self.register.qubits[qbit].circ.append(I())
-        self.register.control_list.append(I())
+            self.qubits[i].circ.append(Z())
+        self.qubits[qbit].circ.append(Annihilation(conv=conv))
+        for j in range(qbit+1,self.n):
+            self.qubits[qbit].circ.append(I())
+        self.control_list.append(I())
 QuantumCircuit.a = a
 
 

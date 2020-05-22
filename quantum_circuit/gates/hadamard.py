@@ -37,8 +37,8 @@ class H(Gate):
 # Hadamard gate to QuantumCircuit functionality
 from .. import QuantumCircuit
 def h(self,q):
-    self.register.qubits[q].circ.append(H())
-    self.register.identity_layer(q)
+    self.qubits[q].circ.append(H())
+    self.identity_layer(q)
     return self
 QuantumCircuit.h = h
 

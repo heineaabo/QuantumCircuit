@@ -7,7 +7,7 @@ def transform_ladder_operators(self):
 
     # Find all ladder operators in circuit
     # with information about qubit and position on qubit.
-    info = self.register.check_ladder()
+    info = self.check_ladder()
     num = 0 # Number of new 
     each_ladder = []
     for elem in info:
@@ -27,13 +27,13 @@ def transform_ladder_operators(self):
     for perm,circ in zip(perms,copies):
         for j,gate in enumerate(perm):
             qbit,ind = each_ladder[j]
-            lad_gate = circ.register[qbit].circ[ind]
+            lad_gate = circ[qbit].circ[ind]
             gate.factor *= lad_gate.factor
             if (isinstance(lad_gate,Creation) and lad_gate.conv == 1) and isinstance(gate,Y):
                 gate.factor *= -1
             elif (isinstance(lad_gate,Annihilation) and lad_gate.conv == 0) and isinstance(gate,Y):
                 gate.factor *= -1
-            circ.register[qbit].circ[ind] = gate
+            circ[qbit].circ[ind] = gate
 
     # Optimize each copy
     for circ in copies:
@@ -45,7 +45,7 @@ def transform_ladder_operators(self):
     for circ1 in copies[1:]:
         check = False
         for circ2 in unique:
-            if circ1.register == circ2.register:
+            if circ1.equal_to(circ2):
                 circ2.factor += circ1.factor
                 check = True
                 break

@@ -23,6 +23,8 @@ assert qc2 != qc3
 
 # Factor
 qc3.factor *= complex(0,1)
+qc3.defactor()
+qc4.defactor()
 assert qc3 == qc4
 
 # empty
@@ -32,7 +34,7 @@ empty2 = QuantumCircuit(4)
 empty1(I(),1)
 assert empty1 == empty2
 empty2.factor = 3
-assert empty1.register == empty2.register
+assert empty1.equal_to(empty2)
 
 q1 = QuantumCircuit(4)
 q2 = QuantumCircuit(4)
@@ -86,15 +88,8 @@ qc2.y(2)
 qc2.insert_single_gate(H(),1,0)
 assert qc1 == qc2
 
-qc = QuantumCircuit(4)
-qc.insert_two_body_operator(1,0,1,0,1)
-#qc.gate_optimization()
-circ = qc.transform_ladder_operators()
-print(circ)
-#for i in circ: print(i)
-
-
-#expQC = QuantumCircuit(4)
-#expQC.insert_pauli_string(['XYXY',[0,1,2,3],1],exp=True)
-#expQC.gate_optimization()
-#print(expQC)
+qc2.z(2)
+qc2[1].factor *= -1
+assert qc1[0] == qc2[0]
+assert qc1[1] != qc2[1]
+assert qc1[2] != qc2[2]

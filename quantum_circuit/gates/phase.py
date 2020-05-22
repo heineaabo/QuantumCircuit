@@ -48,8 +48,8 @@ class Ph(Gate):
 # Hadamard gate to QuantumCircuit functionality
 from .. import QuantumCircuit
 def ph(self,phi,q):
-    self.register.qubits[q].circ.append(Ph(phi))
-    self.register.identity_layer(q)
+    self.qubits[q].circ.append(Ph(phi))
+    self.identity_layer(q)
     return self
 QuantumCircuit.ph = ph
 

@@ -34,8 +34,8 @@ class I(Gate):
 # Identity gate to QuantumCircuit functionality
 from .. import QuantumCircuit,QuantumRegister
 def identity(self,q):
-    self.register.qubits[q].circ.append(I())
-    self.register.identity_layer(q)
+    self.qubits[q].circ.append(I())
+    self.identity_layer(q)
     return self
 QuantumCircuit.identity = identity
 
@@ -47,10 +47,10 @@ def identity_layer(self,i,j=None,to_ctrl=True):
     if to_ctrl:
         self.control_list.append(I())
     for k in range(self.n):
-        assert len(self.qubits[k]) in (len(self.control_list),len(self.control_list)-1), '{} not in {}'.format(len(self.qubits[k]),(len(self.control_list),len(self.control_list)-1))
+        #assert len(self.qubits[k]) in (len(self.control_list),len(self.control_list)-1), '{} not in {}'.format(len(self.qubits[k]),(len(self.control_list),len(self.control_list)-1))
         if k == i or k == j:
             continue
         self.qubits[k].circ.append(I())
     return self
-QuantumRegister.identity_layer = identity_layer
+QuantumCircuit.identity_layer = identity_layer
 

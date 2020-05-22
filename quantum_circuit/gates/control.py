@@ -130,30 +130,30 @@ from .. import QuantumCircuit
 def cx(self,q1,q2):
     c = CTRL(q2)
     t = TARG(q1,X())
-    self.register.control_list.append(CNOT(q1,q2))
-    self.register[q1].circ.append(c)
-    self.register[q2].circ.append(t)
-    self.register.identity_layer(q1,q2,to_ctrl=False)
+    self.control_list.append(CNOT(q1,q2))
+    self[q1].circ.append(c)
+    self[q2].circ.append(t)
+    self.identity_layer(q1,q2,to_ctrl=False)
     return self
 QuantumCircuit.cx = cx
 
 def cy(self,q1,q2):
     c = CTRL(q2)
     t = TARG(q1,Y())
-    self.register.control_list.append(C(Y(),q1,q2))
-    self.register[q1].circ.append(c)
-    self.register[q2].circ.append(t)
-    self.register.identity_layer(q1,q2,to_ctrl=False)
+    self.control_list.append(C(Y(),q1,q2))
+    self[q1].circ.append(c)
+    self[q2].circ.append(t)
+    self.identity_layer(q1,q2,to_ctrl=False)
     return self
 QuantumCircuit.cy = cy
 
 def cz(self,q1,q2):
     c = CTRL(q2)
     t = TARG(q1,Z())
-    self.register.control_list.append(C(Z(),q1,q2))
-    self.register[q1].circ.append(c)
-    self.register[q2].circ.append(t)
-    self.register.identity_layer(q1,q2,to_ctrl=False)
+    self.control_list.append(C(Z(),q1,q2))
+    self[q1].circ.append(c)
+    self[q2].circ.append(t)
+    self.identity_layer(q1,q2,to_ctrl=False)
     return self
 QuantumCircuit.cz = cz
 

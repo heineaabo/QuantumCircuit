@@ -98,20 +98,20 @@ class Rz(Rotation):
 
 from .. import QuantumCircuit
 def rx(self,q,phi=pi/2):
-    self.register.qubits[q].apply(Rx(phi=phi))
-    self.register.identity_layer(q)
+    self.qubits[q].apply(Rx(phi=phi))
+    self.identity_layer(q)
     return self
 QuantumCircuit.rx = rx
 
 def ry(self,q,phi=pi/2):
-    self.register.qubits[q].apply(Ry(phi=phi))
-    self.register.identity_layer(q)
+    self.qubits[q].apply(Ry(phi=phi))
+    self.identity_layer(q)
     return self
 QuantumCircuit.ry = ry
 
 def rz(self,q,phi=pi/2):
-    self.register.qubits[q].apply(Rz(phi=phi))
-    self.register.identity_layer(q)
+    self.qubits[q].apply(Rz(phi=phi))
+    self.identity_layer(q)
     return self
 QuantumCircuit.rz = rz
 
