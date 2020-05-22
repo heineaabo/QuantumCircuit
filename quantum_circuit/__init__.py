@@ -1,7 +1,7 @@
 from .circuit import QuantumCircuit
 from .register import QuantumRegister
 from .qubit import Qubit
-from .hamiltonian import SecondQuantizedHamiltonian,FermionHamiltonian
+from .hamiltonian import SecondQuantizedHamiltonian,PairingHamiltonian
 
 from .circuit_list import CircuitList,PauliString,QWCGroup,GCGroup
 

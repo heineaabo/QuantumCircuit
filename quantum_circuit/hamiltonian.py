@@ -30,106 +30,6 @@ class Hamiltonian:
         self.exp = exp
         self.conv = conv 
 
-
-class FermionHamiltonian(Hamiltonian):
-    def __init__(self,n,l,
-                 one_body,two_body,exp=False,
-                 nuclear_repulsion=0,anti_symmetric=False,add_spin=False,
-                 conv=1):
-
-        super().__init__(n,l,one_body,two_body,exp,
-                         nuclear_repulsion,anti_symmetric,add_spin,conv)
-
-        self.circuit_list = CircuitList()
-        self.get_circuit()
-
-    def get_circuit(self):
-        # make x,y,z gate instances
-        x,y,z = X(),Y(),Z()
-        # Add nuclear repulsion to constant factor (can be 0)
-        constant = self.nuclear_repulsion
-        Zgroup = QWCGroup()
-        # One-body interactions
-        for p in range(self.l):
-            if not np.isclose(self.h[p,p],0):
-                factor = 0.5*self.h[p,p]
-                constant += factor
-                Zgroup.append(PauliString(-factor,[Z()],[p]),check_equal=True)
-            for q in range(p+1,self.l):
-                if not np.isclose(self.v[p,q,p,q],0):
-                    factor = 0.25*self.v[p,q,p,q]
-                    constant += factor
-                    Zgroup.append(PauliString(-factor,[Z()],[p]),check_equal=True)
-                    Zgroup.append(PauliString(-factor,[Z()],[q]),check_equal=True)
-                    Zgroup.append(PauliString(factor,[Z(),Z()],[p,q]))
-        self.circuit_list.append(PauliString(constant,[],[]))
-        #for pauli in Zgroup:
-        #    self.circuit_list.append(pauli)
-        self.circuit_list.append(Zgroup)
-
-        # Two-body interactions
-        for p in range(self.l):
-            for q in range(p+1,self.l):
-                for r in range(q+1,self.l):
-                    for s in range(r+1,self.l):
-                        factor1 = 0.125*(self.v[p,q,r,s]\
-                                       + self.v[p,r,q,s]\
-                                       + self.v[p,r,s,q])
-                        factor2 =-0.125*(self.v[p,q,r,s]\
-                                       - self.v[p,r,q,s]\
-                                       - self.v[p,r,s,q])
-                        factor3 = 0.125*(self.v[p,q,r,s]\
-                                       + self.v[p,r,q,s]\
-                                       - self.v[p,r,s,q])
-                        factor4 = 0.125*(self.v[p,q,r,s]\
-                                       - self.v[p,r,q,s]\
-                                       + self.v[p,r,s,q])
-                        # Make Pauli strings
-                        pqrs = [p,q,r,s]
-                        xxxx = [x,x,x,x]
-                        yyyy = [y,y,y,y]
-                        xxyy = [x,x,y,y]
-                        yyxx = [y,y,x,x]
-                        xyyx = [x,y,y,x]
-                        yxxy = [y,x,x,y]
-                        xyxy = [x,y,x,y]
-                        yxyx = [y,x,y,x]
-                        # Insert Z gates between p and q, and r and s
-                        for k in range(r+1,s):
-                            pqrs.insert(3,k)
-                            xxxx.insert(3,z)
-                            yyyy.insert(3,z)
-                            xxyy.insert(3,z)
-                            yyxx.insert(3,z)
-                            xyyx.insert(3,z)
-                            yxxy.insert(3,z)
-                            xyxy.insert(3,z)
-                            yxyx.insert(3,z)
-                        for k in range(p+1,q):
-                            pqrs.insert(1,k)
-                            xxxx.insert(1,z)
-                            yyyy.insert(1,z)
-                            xxyy.insert(1,z)
-                            yyxx.insert(1,z)
-                            xyyx.insert(1,z)
-                            yxxy.insert(1,z)
-                            xyxy.insert(1,z)
-                            yxyx.insert(1,z)
-
-                        if not np.isclose(factor1,0):
-                            self.circuit_list.append(PauliString(factor1,xxxx,pqrs),check_equal=True)
-                            self.circuit_list.append(PauliString(factor1,yyyy,pqrs),check_equal=True)
-                        if not np.isclose(factor2,0):
-                            self.circuit_list.append(PauliString(factor2,xxyy,pqrs),check_equal=True)
-                            self.circuit_list.append(PauliString(factor2,yyxx,pqrs),check_equal=True)
-                        if not np.isclose(factor3,0):
-                            self.circuit_list.append(PauliString(factor3,xyyx,pqrs),check_equal=True)
-                            self.circuit_list.append(PauliString(factor3,yxxy,pqrs),check_equal=True)
-                        if not np.isclose(factor4,0):
-                            self.circuit_list.append(PauliString(factor4,xyxy,pqrs),check_equal=True)
-                            self.circuit_list.append(PauliString(factor4,yxyx,pqrs),check_equal=True)
-
-
 class SecondQuantizedHamiltonian(Hamiltonian):
     def __init__(self,n,l,
                  one_body,two_body,exp=False,
@@ -153,10 +53,8 @@ class SecondQuantizedHamiltonian(Hamiltonian):
         for p in range(self.l):
             if not np.isclose(self.h[p,p],0):
                 qc = QuantumCircuit(self.l)
-                qc.insert_one_body_operator(self.h[p,p],p,p,
+                circuits += qc.insert_one_body_operator(self.h[p,p],p,p,
                                             conv=self.conv)
-                circ = qc.transform_ladder_operators()
-                circuits += circ
         #for p in range(self.l):
         #    for q in range(self.l):
         #        if not np.isclose(self.h[p,q],0):
@@ -172,10 +70,7 @@ class SecondQuantizedHamiltonian(Hamiltonian):
                     for b in range(a+1,self.l):
                         if not np.isclose(self.v[i,j,a,b],0):
                             qc = QuantumCircuit(self.l)
-                            qc.insert_two_body_operator(4*self.v[i,j,a,b],i,j,a,b,
-                                                        conv=self.conv)
-                            circ = qc.transform_ladder_operators()
-                            circuits += circ
+                            circuits += qc.insert_two_body_operator(4*self.v[i,j,a,b],i,j,a,b,conv=self.conv)
                                 
         self.circuit = self.get_unique(circuits)
 
@@ -258,4 +153,75 @@ class SecondQuantizedHamiltonian(Hamiltonian):
         else:
             raise ValueError('Input either "vqe" or "qpe"')
         return circuit_list
+
+class PairingHamiltonian(Hamiltonian):
+    def __init__(self,n,l,
+                 one_body,two_body,exp=False,
+                 nuclear_repulsion=0,anti_symmetric=False,add_spin=False,
+                 conv=1):
+
+        super().__init__(n,l,one_body,two_body,exp,
+                         nuclear_repulsion,anti_symmetric,add_spin,conv)
+
+        self.circuits = CircuitList()
+        self.get_circuit()
+
+    def get_circuit(self):
+        # make x,y,z gate instances
+        x,y,z = X(),Y(),Z()
+        # Add nuclear repulsion to constant factor (can be 0)
+        constant = self.nuclear_repulsion
+        Zgroup = QWCGroup()
+        # One-body interactions
+        for p in range(self.l):
+            if not np.isclose(self.h[p,p],0):
+                factor = 0.5*self.h[p,p]
+                constant += factor
+                Zgroup.append(PauliString(-factor,[Z()],[p]),check_equal=True)
+            for q in range(p+1,self.l):
+                if not np.isclose(self.v[p,q,p,q],0):
+                    factor = 0.25*self.v[p,q,p,q]
+                    constant += factor
+                    Zgroup.append(PauliString(-factor,[Z()],[p]),check_equal=True)
+                    Zgroup.append(PauliString(-factor,[Z()],[q]),check_equal=True)
+                    Zgroup.append(PauliString(factor,[Z(),Z()],[p,q]))
+        self.circuits.append(PauliString(constant,[],[]))
+        #for pauli in Zgroup:
+        #    self.circuits.append(pauli)
+        self.circuits.append(Zgroup)
+
+        # Two-body interactions
+        for p in range(self.l-1):
+            for q in range(p+1,p+2):
+                for r in range(q+1,self.l-1):
+                    for s in range(r+1,r+2):
+                        factor1 = 0.125*(self.v[p,q,r,s])
+                        factor2 =-0.125*(self.v[p,q,r,s])
+                        factor3 = 0.125*(self.v[p,q,r,s])
+                        factor4 = 0.125*(self.v[p,q,r,s])
+
+                        # Make Pauli strings
+                        pqrs = [p,q,r,s]
+                        xxxx, yyyy = [x,x,x,x], [y,y,y,y]
+                        xxyy, yyxx = [x,x,y,y], [y,y,x,x]
+                        xyyx, yxxy = [x,y,y,x], [y,x,x,y]
+                        xyxy, yxyx = [x,y,x,y], [y,x,y,x]
+
+                        if not np.isclose(factor1,0):
+                            self.circuits.append(PauliString(factor1,xxxx,pqrs),check_equal=True)
+                            self.circuits.append(PauliString(factor1,yyyy,pqrs),check_equal=True)
+                        if not np.isclose(factor2,0):
+                            self.circuits.append(PauliString(factor2,xxyy,pqrs),check_equal=True)
+                            self.circuits.append(PauliString(factor2,yyxx,pqrs),check_equal=True)
+                        if not np.isclose(factor3,0):
+                            self.circuits.append(PauliString(factor3,xyyx,pqrs),check_equal=True)
+                            self.circuits.append(PauliString(factor3,yxxy,pqrs),check_equal=True)
+                        if not np.isclose(factor4,0):
+                            self.circuits.append(PauliString(factor4,xyxy,pqrs),check_equal=True)
+                            self.circuits.append(PauliString(factor4,yxyx,pqrs),check_equal=True)
+
+    def circuit_list(self,algorithm):
+        if algorithm.lower() == 'vqe':
+            return self.circuits
+
 
