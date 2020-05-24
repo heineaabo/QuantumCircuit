@@ -1,5 +1,6 @@
 from .gate import Gate
-from qiskit.extensions.standard import XGate,YGate,ZGate,HGate,IdGate,RXGate,SdgGate
+from qiskit.extensions.standard import XGate,YGate,ZGate,HGate,IdGate,RXGate,SdgGate,U1Gate,U2Gate
+from numpy import pi
 
 ##################################################################################
 #                       Info on implementation                                   #
@@ -52,7 +53,8 @@ class X(Gate):
     
     def to_qiskit(self,qc,qubit,transform=False):
         if transform:
-            qc.append(HGate(),[qubit],[])
+            #qc.append(HGate(),[qubit],[])
+            qc.append(U2Gate(0,pi/2),[qubit],[])
             return qc
         else:
             qc.append(XGate(),[qubit],[])
@@ -98,8 +100,10 @@ class Y(Gate):
 
     def to_qiskit(self,qc,qubit,transform=False):
         if transform:
-            qc.append(SdgGate(),[qubit],[])
-            qc.append(HGate(),[qubit],[])
+            #qc.append(SdgGate(),[qubit],[])
+            #qc.append(HGate(),[qubit],[])
+            qc.append(U1Gate(-pi/2),[qubit],[])
+            qc.append(U2Gate(0,pi/2),[qubit],[])
             return qc
         else:
             qc.append(YGate(),[qubit],[])

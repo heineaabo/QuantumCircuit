@@ -177,18 +177,23 @@ class PairingHamiltonian(Hamiltonian):
             if not np.isclose(self.h[p,p],0):
                 factor = 0.5*self.h[p,p]
                 constant += factor
-                Zgroup.append(PauliString(-factor,[Z()],[p]),check_equal=True)
+                self.circuits.append(PauliString(-factor,[Z()],[p]),check_equal=True)
+                #Zgroup.append(PauliString(-factor,[Z()],[p]),check_equal=True)
             for q in range(p+1,self.l):
                 if not np.isclose(self.v[p,q,p,q],0):
                     factor = 0.25*self.v[p,q,p,q]
                     constant += factor
-                    Zgroup.append(PauliString(-factor,[Z()],[p]),check_equal=True)
-                    Zgroup.append(PauliString(-factor,[Z()],[q]),check_equal=True)
-                    Zgroup.append(PauliString(factor,[Z(),Z()],[p,q]))
+
+                    self.circuits.append(PauliString(-factor,[Z()],[p]),check_equal=True)
+                    self.circuits.append(PauliString(-factor,[Z()],[q]),check_equal=True)
+                    self.circuits.append(PauliString(factor,[Z(),Z()],[p,q]))
+                    #Zgroup.append(PauliString(-factor,[Z()],[p]),check_equal=True)
+                    #Zgroup.append(PauliString(-factor,[Z()],[q]),check_equal=True)
+                    #Zgroup.append(PauliString(factor,[Z(),Z()],[p,q]))
         self.circuits.append(PauliString(constant,[],[]))
         #for pauli in Zgroup:
         #    self.circuits.append(pauli)
-        self.circuits.append(Zgroup)
+        #self.circuits.append(Zgroup)
 
         # Two-body interactions
         for p in range(self.l-1):
