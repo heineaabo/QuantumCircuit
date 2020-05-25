@@ -1,5 +1,8 @@
 from .gate import Gate
-from qiskit.extensions.standard import XGate,YGate,ZGate,HGate,IdGate,RXGate,SdgGate,U1Gate,U2Gate
+from qiskit.extensions.standard import XGate,YGate,ZGate,\
+                                       HGate,IdGate,\
+                                       RXGate,SdgGate,\
+                                       U1Gate,U2Gate,U3Gate,Cu1Gate,Cu3Gate
 from numpy import pi
 
 ##################################################################################
@@ -51,13 +54,16 @@ class X(Gate):
         else:
             return (self,other)
     
-    def to_qiskit(self,qc,qubit,transform=False):
+    def to_qiskit(self,qc,qb,qubit,qa=None,transform=False):
         if transform:
-            #qc.append(HGate(),[qubit],[])
-            qc.append(U2Gate(0,pi/2),[qubit],[])
+            #qc.append(HGate(),[qb[qubit]],[])
+            qc.append(U2Gate(0,pi/2),[qb[qubit]],[])
             return qc
         else:
-            qc.append(XGate(),[qubit],[])
+            if qa == None:
+                qc.append(XGate(),[qb[qubit]],[])
+            else:
+                qc.append(Cu3Gate(pi,0,pi),[qa[0],qb[qubit]],[])
             return qc
 
 
@@ -98,15 +104,18 @@ class Y(Gate):
         else:
             return (self,other)
 
-    def to_qiskit(self,qc,qubit,transform=False):
+    def to_qiskit(self,qc,qb,qubit,qa=None,transform=False):
         if transform:
-            #qc.append(SdgGate(),[qubit],[])
-            #qc.append(HGate(),[qubit],[])
-            qc.append(U1Gate(-pi/2),[qubit],[])
-            qc.append(U2Gate(0,pi/2),[qubit],[])
+            #qc.append(SdgGate(),[qb[qubit]],[])
+            #qc.append(HGate(),[qb[qubit]],[])
+            qc.append(U1Gate(-pi/2),[qb[qubit]],[])
+            qc.append(U2Gate(0,pi/2),[qb[qubit]],[])
             return qc
         else:
-            qc.append(YGate(),[qubit],[])
+            if qa == None:
+                qc.append(YGate(),[qb[qubit]],[])
+            else:
+                qc.append(Cu3Gate(pi,pi/2,pi/2),[qa[0],qb[qubit]],[])
             return qc
 
 class Z(Gate):
@@ -143,12 +152,15 @@ class Z(Gate):
         else:
             return (self,other)
 
-    def to_qiskit(self,qc,qubit,transform=False):
+    def to_qiskit(self,qc,qb,qubit,qa=None,transform=False):
         if transform:
-            qc.append(IdGate(),[qubit],[])
+            qc.append(IdGate(),[qb[qubit]],[])
             return qc
         else:
-            qc.append(ZGate(),[qubit],[])
+            if qa == None:
+                qc.append(ZGate(),[qb[qubit]],[])
+            else:
+                qc.append(Cu1Gate(pi),[qa[0],qb[qubit]],[])
             return qc
 
 # Pauli gate to QuantumCircuit functionality
