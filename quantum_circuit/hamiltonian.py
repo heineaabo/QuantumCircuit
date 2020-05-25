@@ -171,14 +171,12 @@ class PairingHamiltonian(Hamiltonian):
         x,y,z = X(),Y(),Z()
         # Add nuclear repulsion to constant factor (can be 0)
         constant = self.nuclear_repulsion
-        Zgroup = QWCGroup()
         # One-body interactions
         for p in range(self.l):
             if not np.isclose(self.h[p,p],0):
                 factor = 0.5*self.h[p,p]
                 constant += factor
                 self.circuits.append(PauliString(-factor,[Z()],[p]),check_equal=True)
-                #Zgroup.append(PauliString(-factor,[Z()],[p]),check_equal=True)
             for q in range(p+1,self.l):
                 if not np.isclose(self.v[p,q,p,q],0):
                     factor = 0.25*self.v[p,q,p,q]
@@ -187,13 +185,7 @@ class PairingHamiltonian(Hamiltonian):
                     self.circuits.append(PauliString(-factor,[Z()],[p]),check_equal=True)
                     self.circuits.append(PauliString(-factor,[Z()],[q]),check_equal=True)
                     self.circuits.append(PauliString(factor,[Z(),Z()],[p,q]))
-                    #Zgroup.append(PauliString(-factor,[Z()],[p]),check_equal=True)
-                    #Zgroup.append(PauliString(-factor,[Z()],[q]),check_equal=True)
-                    #Zgroup.append(PauliString(factor,[Z(),Z()],[p,q]))
         self.circuits.append(PauliString(constant,[],[]))
-        #for pauli in Zgroup:
-        #    self.circuits.append(pauli)
-        #self.circuits.append(Zgroup)
 
         # Two-body interactions
         for p in range(self.l-1):
@@ -224,6 +216,7 @@ class PairingHamiltonian(Hamiltonian):
                         if not np.isclose(factor4,0):
                             self.circuits.append(PauliString(factor4,xyxy,pqrs),check_equal=True)
                             self.circuits.append(PauliString(factor4,yxyx,pqrs),check_equal=True)
+        self.circuits.groupz()
 
     def circuit_list(self,algorithm):
         if algorithm.lower() == 'vqe':

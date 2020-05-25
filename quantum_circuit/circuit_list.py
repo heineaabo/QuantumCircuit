@@ -8,11 +8,15 @@ class PauliString:
         self.gates = gates
         
 
-    def prepare(self,qc,qb):
-        for gate,qubit in zip(self.gates,self.qubits):
-            if gate.char != 'Z':
-                qc = gate.to_qiskit(qc,qubit,transform=True)
-                #qc.append(gate.to_qiskit(transform=True),[qubit],[])
+    def prepare(self,qc,qb,qa=None):
+        if qa == None:
+            for gate,qubit in zip(self.gates,self.qubits):
+                if gate.char != 'Z':
+                    qc = gate.to_qiskit(qc,qb,qubit,transform=True)
+                    #qc.append(gate.to_qiskit(transform=True),[qubit],[])
+        else:
+            for gate,qubit in zip(self.gates,self.qubits):
+                qc = gate.to_qiskit(qc,qb,qubit,qa=qa,transform=False)
         return qc
    
     def expectation(self,result,shots):
@@ -163,11 +167,15 @@ class CircuitList:
         #self.circuits.append(circuit)
 
     def groupz(self):
+        to_remove = []
         z_group = QWCGroup()
-        for circ in self.circuits:
+        for i,circ in enumerate(self.circuits):
             if X() not in circ.gates and Y() not in circ.gates:
-                self.circuits.remove(circ)
-                z_group.append(circ)
+                to_remove.append(i)
+        for i in to_remove[::-1]:
+            circ = self.circuits[i]
+            self.circuits.remove(circ)
+            z_group.append(circ)
         self.circuits.insert(0,z_group)
 
     def __getitem__(self,i):
