@@ -149,7 +149,7 @@ class QuantumCircuit:
 
     def make_empty(self):
         self.factor = 1
-        self.qubits = [Qubit(name=str(i)) for i in range(n)]
+        self.qubits = [Qubit(name=str(i)) for i in range(self.n)]
         self.control_list = []
 
     def all_empty(self):

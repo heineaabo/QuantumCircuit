@@ -50,27 +50,25 @@ class SecondQuantizedHamiltonian(Hamiltonian):
             rep.factor = self.nuclear_repulsion
             circuits.append(rep)
         # One-body interactions
-        for p in range(self.l):
-            if not np.isclose(self.h[p,p],0):
-                qc = QuantumCircuit(self.l)
-                circuits += qc.insert_one_body_operator(self.h[p,p],p,p,
-                                            conv=self.conv)
         #for p in range(self.l):
-        #    for q in range(self.l):
-        #        if not np.isclose(self.h[p,q],0):
-        #            qc = QuantumCircuit(self.l)
-        #            qc.insert_one_body_operator(self.h[p,q],p,q,
-        #                                        conv=self.conv)
-        #            circ = qc.transform_ladder_operators()
-        #            circuits += circ
+        #    if not np.isclose(self.h[p,p],0):
+        #        qc = QuantumCircuit(self.l)
+        #        circuits += qc.insert_one_body_operator(self.h[p,p],p,p,
+        #                                    conv=self.conv)
+        for p in range(self.l):
+            for q in range(self.l):
+                if not np.isclose(self.h[p,q],0):
+                    qc = QuantumCircuit(self.l)
+                    circuits += qc.insert_one_body_operator(self.h[p,q],p,q,
+                                                conv=self.conv)
         # Two-body interactions
         for i in range(self.l):
-            for j in range(i+1,self.l):
+            for j in range(self.l):
                 for a in range(self.l):
-                    for b in range(a+1,self.l):
+                    for b in range(self.l):
                         if not np.isclose(self.v[i,j,a,b],0):
                             qc = QuantumCircuit(self.l)
-                            circuits += qc.insert_two_body_operator(4*self.v[i,j,a,b],i,j,a,b,conv=self.conv)
+                            circuits += qc.insert_two_body_operator(self.v[i,j,a,b],i,j,a,b,conv=self.conv)
                                 
         self.circuit = self.get_unique(circuits)
 
@@ -90,7 +88,7 @@ class SecondQuantizedHamiltonian(Hamiltonian):
                 #if circ1.register == circ2.register:
                 if circ1.equal_to(circ2): 
                     check = True
-                    unique_circs[j].factor += circ1.factor
+                    unique_circs[j].factor = unique_circs[j].factor + circ1.factor
             if not check:
                 unique_circs.append(circ1)
         for i in reversed(range(len(unique_circs))):

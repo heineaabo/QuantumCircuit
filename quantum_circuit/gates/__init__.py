@@ -24,7 +24,7 @@ def insert_control_gate(self,control_gate,ind):
     ctrl = CTRL(control_gate.t)
     targ = TARG(control_gate.c,control_gate.gate)
     self.control_list.insert(ind,control_gate)
-    for i in range(self.register.n):
+    for i in range(self.n):
         if i == control_gate.c:
             self.qubits[i].circ.insert(ind,ctrl)
             continue

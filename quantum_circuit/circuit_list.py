@@ -3,7 +3,8 @@ from .gates import X,Y,Z
 
 class PauliString:
     def __init__(self,factor,gates,qubits):
-        self.factor = factor
+        assert factor.imag == 0
+        self.factor = factor.real
         self.qubits = qubits
         self.gates = gates
         
