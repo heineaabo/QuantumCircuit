@@ -44,7 +44,7 @@ class QuantumCircuit:
             self.identity_layer(q1)
 
     def __str__(self):
-        self.register.update_control_list()
+        self.update_control_list()
         return Printer().print_circuit(self,eco=self.eco_print)
 
     def __repr__(self):

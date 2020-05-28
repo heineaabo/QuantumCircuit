@@ -114,6 +114,7 @@ class SecondQuantizedHamiltonian(Hamiltonian):
             assert isinstance(self.circuit,QuantumCircuit)
             # single gate represented as [char,factor,qubit(,2nd qubit)]
             # with factor = 1 if not rotation gate
+            self.circuit.update_control_list()
             control_list = self.circuit.control_list
             circuit = self.circuit
             for i,gate in enumerate(control_list):
