@@ -29,6 +29,7 @@ class Hamiltonian:
 
         self.exp = exp
         self.conv = conv 
+        self._circuit_list = None
 
 class SecondQuantizedHamiltonian(Hamiltonian):
     def __init__(self,n,l,
@@ -109,6 +110,10 @@ class SecondQuantizedHamiltonian(Hamiltonian):
         """
         Return circuit list to specific algorithm.
         """
+        # If circuit_list already calculated
+        if self._circuit_list != None:
+            return self._circuit_list
+
         if algorithm.lower() == 'qpe':
             circuit_list = []
             assert isinstance(self.circuit,QuantumCircuit)
@@ -152,6 +157,7 @@ class SecondQuantizedHamiltonian(Hamiltonian):
             circuit_list.group_two_body()
         else:
             raise ValueError('Input either "vqe" or "qpe"')
+        self._circuit_list = circuit_list
         return circuit_list
 
 class PairingHamiltonian(Hamiltonian):
