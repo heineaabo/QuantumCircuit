@@ -31,7 +31,11 @@ circ = []
 
 while True:
     os.system('clear')
-    print(S)
+    #print(S)
+    for i,s in enumerate(S): 
+        if i == len(S)//2:
+            print('-'*(3*len(S[0])+1))
+        print(s)
     action = input('Next action: ')
     if action.lower() == '':
         for i,A in enumerate(circ): print('{}: {}'.format(i,A))
