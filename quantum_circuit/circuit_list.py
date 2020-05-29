@@ -130,28 +130,6 @@ class GCGroup:
         for pauli_string in self.paulis:
             E += pauli_string.expectation(result,shots)
         return E
-        #print(result)
-        #E = np.zeros(len(self.paulis))
-        #for state,num_measure in result.items():
-        #    state = state[::-1]
-        #    eigvals = np.zeros(len(self.basis))
-        #    for op,ind in enumerate(self.basis):
-        #        eigval = 1 if state[ind] == '0' else -1
-        #        eigvals[op] = eigval
-        #        E[op] += eigval*num_measure*self.paulis[op].factor
-        #    for i,elem in enumerate(self.rest):
-        #        op = len(self.basis)+i
-        #        eigval = 1
-        #        for e in elem:
-        #            if not isinstance(e,str):
-        #                eigval *= eigvals[e]
-        #            else:
-        #                if e == '-':
-        #                    eigval *= -1
-        #        #print(state,num_measure,eigval*num_measure*self.paulis[op].factor/shots,self.paulis[op])
-        #        E[op] += eigval*num_measure*self.paulis[op].factor
-        #print(E/shots)
-        #return np.sum(E)/shots
 
     def __len__(self):
         return len(self.paulis)

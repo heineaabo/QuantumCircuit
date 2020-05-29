@@ -38,23 +38,24 @@ def group_two_body(self):
             circ.qubits = [0]
             to_remove.append(i)
             to_add.append(circ)
-        #elif circ.gates == [Y(),Y(),Y(),Y()]:
-        #    circ.qubits = [1,2,3]
-        #    to_remove.append(i)
-        #    to_add.append(circ)
-        #elif circ.gates == [Y(),Y(),X(),X()]:
-        #    circ.qubits = [0,2,3]
-        #    to_remove.append(i)
-        #    to_add.append(circ)
-        #elif circ.gates == [Y(),X(),Y(),X()]:
-        #    circ.qubits = [0,1,3]
-        #    to_remove.append(i)
-        #    to_add.append(circ)
-        #elif circ.gates == [X(),Y(),Y(),X()]:
-        #    circ.qubits = [0,1,2]
-        #    circ.rev_eig = True
-        #    to_remove.append(i)
-        #    to_add.append(circ)
+        elif circ.gates == [Y(),Y(),Y(),Y()]:
+            circ.qubits = [1,2,3]
+            circ.rev_eig = True
+            to_remove.append(i)
+            to_add.append(circ)
+        elif circ.gates == [Y(),Y(),X(),X()]:
+            circ.qubits = [0,2,3]
+            to_remove.append(i)
+            to_add.append(circ)
+        elif circ.gates == [Y(),X(),Y(),X()]:
+            circ.qubits = [0,1,3]
+            to_remove.append(i)
+            to_add.append(circ)
+        elif circ.gates == [X(),Y(),Y(),X()]:
+            circ.qubits = [0,1,2]
+            circ.rev_eig = True
+            to_remove.append(i)
+            to_add.append(circ)
     for i,circ in zip(to_remove[::-1],to_add[::-1]):
         #circ = self.circuits[i]
         self.circuits.remove(circ)
