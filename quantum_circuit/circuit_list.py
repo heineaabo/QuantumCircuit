@@ -2,11 +2,12 @@ import numpy as np
 from .gates import X,Y,Z
 
 class PauliString:
-    def __init__(self,factor,gates,qubits):
+    def __init__(self,factor,gates,qubits,rev_eig=False):
         assert factor.imag == 0
         self.factor = factor.real
         self.qubits = qubits
         self.gates = gates
+        self.rev_eig = rev_eig # If reversed eigenvalue. 0=>-1, 1=>+1 
         
 
     def prepare(self,qc,qb,qa=None):
@@ -26,12 +27,13 @@ class PauliString:
         for state,num_measure in result.items():
             state = state[::-1]
             eigval = 1
-            for gate,qubit in zip(self.gates,self.qubits):
+            for qubit in self.qubits:
                 if state[qubit] == '1':
                     eigval *= -1
+            if self.rev_eig:
+                eigval *= -1
             E += eigval*num_measure
         E /= shots
-        #print(self,E*self.factor,result)
         return E*self.factor
 
     def __str__(self):
@@ -99,52 +101,57 @@ class GCGroup:
     """
         General commuting group of Pauli strings.
     """
-    def __init__(self,paulis):
+    def __init__(self,paulis=None):
         self.paulis = paulis
+        if paulis == None:
+            self.paulis = []
 
     def prepare(self,qc,qb):
         return self.ansatz(qc,qb)
     
-    def set_ansatz(self,ansatz,outcomes):
+    def set_ansatz(self,ansatz):
         """
             Set ansatz for simultaneous eigenbasis of the commuting operators.
-            Outcomes - what eigenstates corresponds to what operators.
-                -> Integer entries correspond to computational basis states
-                -> List entries correspond to operators where the eigenvalue 
-                   is dependent on the integer entry eigenvalues.
         """
         self.ansatz = ansatz
-        self.basis = [] # Operators that map to the eigenstates (comp basis)
-        self.rest = []  # Operators that depend on the eigenstate operators
-        for outcome in outcomes:
-            if isinstance(outcome,list):
-                self.rest.append(outcome)
+
+    def append(self,pauli,check_equal=False):
+        if check_equal:
+            if pauli in self.paulis:
+                i = self.paulis.index(pauli)
+                self.paulis[i].factor += pauli.factor
             else:
-                self.basis.append(outcome)
+                self.paulis.append(pauli)
+        else:
+            self.paulis.append(pauli)
 
     def expectation(self,result,shots):
-        print(result)
-        E = np.zeros(len(self.paulis))
-        for state,num_measure in result.items():
-            state = state[::-1]
-            eigvals = np.zeros(len(self.basis))
-            for op,ind in enumerate(self.basis):
-                eigval = 1 if state[ind] == '0' else -1
-                eigvals[op] = eigval
-                E[op] += eigval*num_measure*self.paulis[op].factor
-            for i,elem in enumerate(self.rest):
-                op = len(self.basis)+i
-                eigval = 1
-                for e in elem:
-                    if not isinstance(e,str):
-                        eigval *= eigvals[e]
-                    else:
-                        if e == '-':
-                            eigval *= -1
-                #print(state,num_measure,eigval*num_measure*self.paulis[op].factor/shots,self.paulis[op])
-                E[op] += eigval*num_measure*self.paulis[op].factor
-        print(E/shots)
-        return np.sum(E)/shots
+        E = 0
+        for pauli_string in self.paulis:
+            E += pauli_string.expectation(result,shots)
+        return E
+        #print(result)
+        #E = np.zeros(len(self.paulis))
+        #for state,num_measure in result.items():
+        #    state = state[::-1]
+        #    eigvals = np.zeros(len(self.basis))
+        #    for op,ind in enumerate(self.basis):
+        #        eigval = 1 if state[ind] == '0' else -1
+        #        eigvals[op] = eigval
+        #        E[op] += eigval*num_measure*self.paulis[op].factor
+        #    for i,elem in enumerate(self.rest):
+        #        op = len(self.basis)+i
+        #        eigval = 1
+        #        for e in elem:
+        #            if not isinstance(e,str):
+        #                eigval *= eigvals[e]
+        #            else:
+        #                if e == '-':
+        #                    eigval *= -1
+        #        #print(state,num_measure,eigval*num_measure*self.paulis[op].factor/shots,self.paulis[op])
+        #        E[op] += eigval*num_measure*self.paulis[op].factor
+        #print(E/shots)
+        #return np.sum(E)/shots
 
     def __len__(self):
         return len(self.paulis)
@@ -166,18 +173,6 @@ class CircuitList:
         else:
             self.circuits.append(circuit)
         #self.circuits.append(circuit)
-
-    def groupz(self):
-        to_remove = []
-        z_group = QWCGroup()
-        for i,circ in enumerate(self.circuits):
-            if X() not in circ.gates and Y() not in circ.gates:
-                to_remove.append(i)
-        for i in to_remove[::-1]:
-            circ = self.circuits[i]
-            self.circuits.remove(circ)
-            z_group.append(circ)
-        self.circuits.insert(0,z_group)
 
     def __getitem__(self,i):
         return self.circuits[i]
