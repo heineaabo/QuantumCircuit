@@ -2,12 +2,22 @@ import numpy as np
 from .gates import X,Y,Z
 
 class PauliString:
-    def __init__(self,factor,gates,qubits,rev_eig=False):
+    def __init__(self,factor,gates,qubits,measure=None,rev_eig=False):
+        """
+        factor: Factor of Pauli-string
+        gates: Pauli gates in Pauli-string
+        qubits: Qubits that pauli gates act on
+        measure: List of qubits to measure
+        rev_eig: If reverse measurement, 
+                 that is parity gives - and + not + and -
+        """
         assert factor.imag == 0
         self.factor = factor.real
         self.qubits = qubits
         self.gates = gates
         self.rev_eig = rev_eig # If reversed eigenvalue. 0=>-1, 1=>+1 
+        if measure == None:
+            self.measure_qubits = qubits
         
 
     def prepare(self,qc,qb,qa=None):
@@ -27,7 +37,7 @@ class PauliString:
         for state,num_measure in result.items():
             state = state[::-1]
             eigval = 1
-            for qubit in self.qubits:
+            for qubit in self.measure_qubits:
                 if state[qubit] == '1':
                     eigval *= -1
             if self.rev_eig:
@@ -136,6 +146,12 @@ class GCGroup:
 
     def __eq__(self,other):
         return False
+
+    def __str__(self):
+        string = ''
+        for pauli in sorted(self.paulis,key=len):
+            string += str(pauli)+'\n'
+        return string[:-1]
 
 class CircuitList:
     def __init__(self):

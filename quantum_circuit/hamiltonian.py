@@ -153,12 +153,20 @@ class SecondQuantizedHamiltonian(Hamiltonian):
                         gates.append(qbit[0])
                         qubits.append(i)
                 circuit_list.append(PauliString(circ.factor,gates,qubits))
-            circuit_list.groupz()
-            circuit_list.group_two_body()
         else:
             raise ValueError('Input either "vqe" or "qpe"')
         self._circuit_list = circuit_list
         return circuit_list
+
+    def group_paulis(self,qwc=True,gc=True):
+        if self._circuit_list == None:
+            self.circuit_list('vqe')
+        if qwc:
+            self._circuit_list.groupz()
+        if gc:
+            self._circuit_list.group_two_body()
+
+
 
 class PairingHamiltonian(Hamiltonian):
     def __init__(self,n,l,
@@ -222,11 +230,15 @@ class PairingHamiltonian(Hamiltonian):
                         if not np.isclose(factor4,0):
                             self.circuits.append(PauliString(factor4,xyxy,pqrs),check_equal=True)
                             self.circuits.append(PauliString(factor4,yxyx,pqrs),check_equal=True)
-        self.circuits.groupz()
-        self.circuits.group_two_body()
 
     def circuit_list(self,algorithm):
         if algorithm.lower() == 'vqe':
             return self.circuits
+
+    def group_paulis(self,qwc=True,gc=True):
+        if qwc:
+            self.circuits.groupz()
+        if gc:
+            self.circuits.group_two_body()
 
 

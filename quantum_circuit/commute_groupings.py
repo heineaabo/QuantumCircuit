@@ -23,6 +23,72 @@ def group_two_body(self):
         if not isinstance(circ,PauliString):
             continue
         if circ.gates == [X(),X(),X(),X()]:
+            circ.measure_qubits = [3]
+            to_remove.append(i)
+            to_add.append(circ)
+        elif circ.gates == [X(),X(),Y(),Y()]:
+            circ.measure_qubits = [2]
+            to_remove.append(i)
+            to_add.append(circ)
+        elif circ.gates == [X(),Y(),X(),Y()]:
+            circ.measure_qubits = [1]
+            to_remove.append(i)
+            to_add.append(circ)
+        elif circ.gates == [Y(),X(),X(),Y()]:
+            circ.measure_qubits = [0]
+            to_remove.append(i)
+            to_add.append(circ)
+        elif circ.gates == [Y(),Y(),Y(),Y()]:
+            circ.measure_qubits = [0,1,2]
+            circ.rev_eig = True
+            to_remove.append(i)
+            to_add.append(circ)
+        elif circ.gates == [Y(),Y(),X(),X()]:
+            circ.measure_qubits = [0,1,3]
+            circ.rev_eig = True
+            to_remove.append(i)
+            to_add.append(circ)
+        elif circ.gates == [Y(),X(),Y(),X()]:
+            circ.measure_qubits = [0,2,3]
+            circ.rev_eig = True
+            to_remove.append(i)
+            to_add.append(circ)
+        elif circ.gates == [X(),Y(),Y(),X()]:
+            circ.measure_qubits = [1,2,3]
+            circ.rev_eig = True
+            to_remove.append(i)
+            to_add.append(circ)
+    for i,circ in zip(to_remove[::-1],to_add[::-1]):
+        self.circuits.remove(circ)
+        c_group.append(circ)
+    def ansatz(qc,qb):
+        for i in range(3):
+            qc.h(qb[i])
+        # CX
+        qc.cx(qb[0],qb[3])
+        qc.cx(qb[1],qb[3])
+        qc.cx(qb[2],qb[3])
+        # CZ
+        qc.cz(qb[2],qb[3])
+        qc.cz(qb[1],qb[3])
+        qc.cz(qb[0],qb[3])
+        for i in range(4):
+            qc.h(qb[i])
+        return qc
+    c_group.set_ansatz(ansatz)
+    if len(c_group) > 0:
+        self.circuits.insert(1,c_group)
+CircuitList.group_two_body = group_two_body
+
+def gokhale_two_body(self):
+    """ For two-body operators without Z-gates. """
+    to_remove = []
+    to_add = []
+    c_group = GCGroup()
+    for i,circ in enumerate(self.circuits):
+        if not isinstance(circ,PauliString):
+            continue
+        if circ.gates == [X(),X(),X(),X()]:
             circ.qubits = [3]
             to_remove.append(i)
             to_add.append(circ)
@@ -57,10 +123,9 @@ def group_two_body(self):
             to_remove.append(i)
             to_add.append(circ)
     for i,circ in zip(to_remove[::-1],to_add[::-1]):
-        #circ = self.circuits[i]
         self.circuits.remove(circ)
         c_group.append(circ)
-    def ansatz(qc,qb):
+    def gokhale_ansatz(qc,qb):
         for i in range(1,4):
             qc.h(qb[i])
         # Swap between 1 and 2
@@ -81,6 +146,6 @@ def group_two_body(self):
         for i in range(4):
             qc.h(qb[i])
         return qc
-    c_group.set_ansatz(ansatz)
+    c_group.set_ansatz(gokhale_ansatz)
     self.circuits.insert(1,c_group)
-CircuitList.group_two_body = group_two_body
+#CircuitList.group_two_body = gokhale_two_body
