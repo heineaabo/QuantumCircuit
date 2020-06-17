@@ -1,5 +1,5 @@
 import numpy as np
-from .gates import X,Y,Z
+from .gates import X,Y,Z,I
 
 class PauliString:
     def __init__(self,factor,gates,qubits,measure=None,rev_eig=False):
@@ -62,18 +62,29 @@ class PauliString:
     def __len__(self):
         return len(self.gates)
 
+    def __getitem__(self,i):
+        if len(self.qubits) == 0:
+            return 0
+        else:
+            return self.qubits[i]
+
 class QWCGroup:
     """
         Qubit-wise commuting group of Pauli strings.
     """
-    def __init__(self,paulis=None):
+    def __init__(self,paulis=None,name='QWC'):
         self.paulis = paulis
+        self.name = name
         if paulis == None:
             self.paulis = []
+        self.ansatz = None
 
-    def prepare(self,qc,qb):
-        for pauli_string in self.paulis:
-            qc = pauli_string.prepare(qc,qb)
+    def prepare(self,qc,qb,qa=None):
+        if self.ansatz == None:
+            self.find_ansatz()
+        qc = self.ansatz.prepare(qc,qb,qa=qa)
+        #for pauli_string in self.paulis:
+        #    qc = pauli_string.prepare(qc,qb)
         return qc
 
     def expectation(self,result,shots):
@@ -95,7 +106,7 @@ class QWCGroup:
     def __str__(self):
         string = ''
         for pauli in sorted(self.paulis,key=len):
-            string += str(pauli)+'\n'
+            string += str(pauli)+' '+self.name+'\n'
         return string[:-1]
 
     def __getitem__(self,i):
@@ -106,24 +117,43 @@ class QWCGroup:
 
     def __eq__(self,other):
         return False
+    
+    def find_ansatz(self):
+        max_ = max([p[-1] for p in self.paulis]) # last qubit being acted on
+        qubits = [i for i in range(max_ +1)]
+        gates = [I() for i in range(max_ +1)]
+        for p in self.paulis:
+            for gate, qubit in zip(p.gates,p.qubits):
+                if gate != I():
+                    gates[qubit] = gate
+        i = 0
+        for gate in gates[::-1]:
+            if gate == I():
+                gates.pop(-i-1)
+                qubits.pop(-i-1)
+                i -= 1
+            i += 1
+        self.ansatz = PauliString(1,gates,qubits)
 
 class GCGroup:
     """
         General commuting group of Pauli strings.
     """
-    def __init__(self,paulis=None):
+    def __init__(self,paulis=None,name='GC'):
         self.paulis = paulis
+        self.qubits = None
         if paulis == None:
             self.paulis = []
 
     def prepare(self,qc,qb):
-        return self.ansatz(qc,qb)
+        return self.ansatz(qc,qb,self.qubits)
     
-    def set_ansatz(self,ansatz):
+    def set_ansatz(self,ansatz,qubits):
         """
             Set ansatz for simultaneous eigenbasis of the commuting operators.
         """
         self.ansatz = ansatz
+        self.qubits = qubits
 
     def append(self,pauli,check_equal=False):
         if check_equal:
@@ -150,11 +180,13 @@ class GCGroup:
     def __str__(self):
         string = ''
         for pauli in sorted(self.paulis,key=len):
-            string += str(pauli)+'\n'
+            string += str(pauli)+' '+self.name+'\n'
         return string[:-1]
 
 class CircuitList:
     def __init__(self):
+        self.num_gc = 0
+        self.num_qwc = 0
         self.circuits = []
 
     def append(self,circuit,check_equal=False):

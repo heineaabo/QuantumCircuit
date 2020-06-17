@@ -158,13 +158,19 @@ class SecondQuantizedHamiltonian(Hamiltonian):
         self._circuit_list = circuit_list
         return circuit_list
 
-    def group_paulis(self,qwc=True,gc=True):
+    def group_paulis(self,qwc=True,gc=True,ibmq=False):
         if self._circuit_list == None:
             self.circuit_list('vqe')
         if qwc:
-            self._circuit_list.groupz()
+            if len(self._circuit_list) > 2:
+                self._circuit_list.find_qwc()
+            #self._circuit_list.groupz()
         if gc:
-            self._circuit_list.group_two_body()
+            if ibmq:
+                print('Grouping GC operators with IBM coupling map')
+                self._circuit_list.group_two_body_IBM()
+            else:
+                self._circuit_list.group_two_body()
 
 
 
@@ -178,6 +184,7 @@ class PairingHamiltonian(Hamiltonian):
                          nuclear_repulsion,anti_symmetric,add_spin,conv)
 
         self.circuits = CircuitList()
+        self._circuit_list = None
         self.get_circuit()
 
     def get_circuit(self):
@@ -191,7 +198,10 @@ class PairingHamiltonian(Hamiltonian):
                 factor = 0.5*self.h[p,p]
                 constant += factor
                 self.circuits.append(PauliString(-factor,[Z()],[p]),check_equal=True)
-            for q in range(p+1,self.l):
+            #for q in range(p+1,self.l):
+            for q in range(self.l):
+                if p == q:
+                    continue
                 if not np.isclose(self.v[p,q,p,q],0):
                     factor = 0.25*self.v[p,q,p,q]
                     constant += factor
@@ -206,10 +216,10 @@ class PairingHamiltonian(Hamiltonian):
             for q in range(p+1,p+2):
                 for r in range(q+1,self.l-1):
                     for s in range(r+1,r+2):
-                        factor1 = 0.125*(self.v[p,q,r,s])
-                        factor2 =-0.125*(self.v[p,q,r,s])
-                        factor3 = 0.125*(self.v[p,q,r,s])
-                        factor4 = 0.125*(self.v[p,q,r,s])
+                        factor1 = 0.125*(self.v[p,q,r,s]) # *2
+                        factor2 =-0.125*(self.v[p,q,r,s]) # *2
+                        factor3 = 0.125*(self.v[p,q,r,s]) # *2
+                        factor4 = 0.125*(self.v[p,q,r,s]) # *2
 
                         # Make Pauli strings
                         pqrs = [p,q,r,s]
@@ -232,13 +242,25 @@ class PairingHamiltonian(Hamiltonian):
                             self.circuits.append(PauliString(factor4,yxyx,pqrs),check_equal=True)
 
     def circuit_list(self,algorithm):
+        # If circuit_list already calculated
+        if self._circuit_list != None:
+            return self._circuit_list
         if algorithm.lower() == 'vqe':
+            self._circuit_list = self.circuits
             return self.circuits
 
-    def group_paulis(self,qwc=True,gc=True):
+    def group_paulis(self,qwc=True,gc=True,ibmq=False):
+        if self._circuit_list == None:
+            self.circuit_list('vqe')
         if qwc:
-            self.circuits.groupz()
+            if len(self._circuit_list) > 2:
+                self._circuit_list.find_qwc()
+            #self.circuits.groupz()
         if gc:
-            self.circuits.group_two_body()
+            if ibmq:
+                print('Grouping GC operators with IBM coupling map')
+                self._circuit_list.group_two_body_IBM()
+            else:
+                self._circuit_list.group_two_body()
 
 
