@@ -1,5 +1,9 @@
 from .gate import Gate
-from qiskit.extensions.standard import XGate,YGate,ZGate
+from qiskit.extensions.standard import XGate,YGate,ZGate,\
+                                       HGate,IdGate,\
+                                       RXGate,SdgGate,\
+                                       U1Gate,U2Gate,U3Gate,Cu1Gate,Cu3Gate
+from numpy import pi
 
 ##################################################################################
 #                       Info on implementation                                   #
@@ -37,23 +41,31 @@ class X(Gate):
             i = complex(0,1)
             k = self.factor*other.factor
             return i*k*Y()
-        elif isinstance(other,Creation):
-            k = self.factor*other.factor
-            Id = 0.5*k*I() 
-            z = -0.5*k*Z()
-            return [Id,z]
-        elif isinstance(other,Annihilation):
+        elif isinstance(other,Ladder):
             k = self.factor*other.factor
             Id = 0.5*k*I() 
             z = 0.5*k*Z()
+            if (isinstance(other,Creation) and other.conv == 1)\
+                    or (isinstance(other,Annihilation) and other.conv == 0):
+                z.factor *= -1
             return [Id,z]
         elif isinstance(other,Zero):
             return Zero()
-        elif isinstance(other,H):
+        else:
             return (self,other)
     
-    def get_qiskit(self):
-        return XGate()
+    def to_qiskit(self,qc,qb,qubit,qa=None,transform=False):
+        if transform:
+            #qc.append(HGate(),[qb[qubit]],[])
+            qc.append(U2Gate(0,pi/2),[qb[qubit]],[])
+            return qc
+        else:
+            if qa == None:
+                qc.append(XGate(),[qb[qubit]],[])
+            else:
+                qc.append(Cu3Gate(pi,0,pi),[qa[0],qb[qubit]],[])
+            return qc
+
 
 class Y(Gate):
     def __init__(self,factor=complex(1,0)):
@@ -78,25 +90,33 @@ class Y(Gate):
             i = complex(0,1)
             k = self.factor*other.factor
             return -i*k*X()
-        elif isinstance(other,Creation):
-            i = complex(0,1)
-            k = self.factor*other.factor
-            Id = -0.5*i*k*I() 
-            z = 0.5*i*k*Z()
-            return [Id,z]
-        elif isinstance(other,Annihilation):
+        elif isinstance(other,Ladder):
             i = complex(0,1)
             k = self.factor*other.factor
             Id = 0.5*i*k*I() 
             z = 0.5*i*k*Z()
+            if (isinstance(other,Creation) and other.conv == 1)\
+                    or (isinstance(other,Annihilation) and other.conv == 0):
+                Id.factor *= -1
             return [Id,z]
         elif isinstance(other,Zero):
             return Zero()
-        elif isinstance(other,H):
+        else:
             return (self,other)
 
-    def get_qiskit(self):
-        return YGate()
+    def to_qiskit(self,qc,qb,qubit,qa=None,transform=False):
+        if transform:
+            #qc.append(SdgGate(),[qb[qubit]],[])
+            #qc.append(HGate(),[qb[qubit]],[])
+            qc.append(U1Gate(-pi/2),[qb[qubit]],[])
+            qc.append(U2Gate(0,pi/2),[qb[qubit]],[])
+            return qc
+        else:
+            if qa == None:
+                qc.append(YGate(),[qb[qubit]],[])
+            else:
+                qc.append(Cu3Gate(pi,pi/2,pi/2),[qa[0],qb[qubit]],[])
+            return qc
 
 class Z(Gate):
     def __init__(self,factor=complex(1,0)):
@@ -121,22 +141,49 @@ class Z(Gate):
             i = complex(0,1)
             k = self.factor * other.factor
             return i*k*X()
-        elif isinstance(other,Creation):
+        elif isinstance(other,Ladder):
             other.factor *= self.factor
+            if (isinstance(other,Creation) and other.conv == 0)\
+                    or (isinstance(other,Annihilation) and other.conv == 1):
+                other.factor *= -1
             return other
-        elif isinstance(other,Annihilation):
-            other.factor *= self.factor
-            return -other
         elif isinstance(other,Zero):
             return Zero()
-        elif isinstance(other,H):
+        else:
             return (self,other)
 
-    def get_qiskit(self):
-        return ZGate()
+    def to_qiskit(self,qc,qb,qubit,qa=None,transform=False):
+        if transform:
+            qc.append(IdGate(),[qb[qubit]],[])
+            return qc
+        else:
+            if qa == None:
+                qc.append(ZGate(),[qb[qubit]],[])
+            else:
+                qc.append(Cu1Gate(pi),[qa[0],qb[qubit]],[])
+            return qc
+
+# Pauli gate to QuantumCircuit functionality
+from .. import QuantumCircuit
+def x(self,q):
+    self.qubits[q].apply(X())
+    self.identity_layer(q)
+    return self
+def y(self,q):
+    self.qubits[q].apply(Y())
+    self.identity_layer(q)
+    return self
+def z(self,q):
+    self.qubits[q].apply(Z())
+    self.identity_layer(q)
+    return self
+
+QuantumCircuit.x = x
+QuantumCircuit.y = y
+QuantumCircuit.z = z
+
 
 # Necessary import
-from .ladder import Creation,Annihilation
+from .ladder import Creation,Annihilation,Ladder
 from .identity import I
-from .hadamard import H
 from .zero import Zero

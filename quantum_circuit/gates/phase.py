@@ -1,5 +1,5 @@
 from .gate import Gate
-from qiskit.extensions.standard import HGate
+from qiskit.extensions.standard import U1Gate,XGate
 
 ##################################################################################
 #                       Info on implementation                                   #
@@ -10,16 +10,21 @@ from qiskit.extensions.standard import HGate
 #                                                                                #
 ##################################################################################
 
-class H(Gate):
-    def __init__(self,factor=complex(1,0)):
+class Ph(Gate):
+    """
+    Qiskit u1-gate. 
+    Not to be confused with actual phase gate.
+    """
+    def __init__(self,phi,factor=complex(1,0)):
         super().__init__(factor)
-        self.char = 'H'
+        self.phi = phi
+        self.char = 'Ph'
     
     def __mul__(self,other):
         if isinstance(other,(int,float,complex)):
             self.factor *= other
             return self
-        elif isinstance(other,H):
+        elif isinstance(other,Ph):
             k = self.factor*other.factor
             return k*I()
         elif isinstance(other,I):
@@ -30,17 +35,23 @@ class H(Gate):
         else:
             return (self,other)
 
+    def __eq__(self,other):
+        if type(self) == type(other):
+            if self.phi == other.phi:
+                return True
+        return False
+
     def get_qiskit(self):
-        return HGate()
+        return [U1Gate(self.phi),XGate()]
 
 
 # Hadamard gate to QuantumCircuit functionality
 from .. import QuantumCircuit
-def h(self,q):
-    self.qubits[q].circ.append(H())
+def ph(self,phi,q):
+    self.qubits[q].circ.append(Ph(phi))
     self.identity_layer(q)
     return self
-QuantumCircuit.h = h
+QuantumCircuit.ph = ph
 
 # Necessary imports
 from .identity import I

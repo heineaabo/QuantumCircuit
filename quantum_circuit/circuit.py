@@ -1,7 +1,6 @@
 from .qubit import Qubit
-from .register import QuantumRegister
-from .utils import Printer,get_permutations
-from .gates import Creation,Y
+#from .register import QuantumRegister
+from .utils import Printer
 
 from math import pi
 from copy import deepcopy
@@ -18,7 +17,10 @@ class QuantumCircuit:
         register (QuantumRegister) - Handles all qubit action.
     """
     def __init__(self,n,eco_print=False):
-        self.register = QuantumRegister(n)
+        self.n = n
+        #self.register = QuantumRegister(self.n)
+        self.qubits = [Qubit(name=str(i)) for i in range(n)]
+        self.control_list = []
         self.factor = 1
         self.eco_print = eco_print
 
@@ -30,131 +32,133 @@ class QuantumCircuit:
             gate   (str)   - Quantum gate to be applied.
             q1     (int)   - Target qubit (if q2 is not it specifies the control qubit.)
             q2     (int)   - (Optional) Target qubit.
-            phi    (float) - Roation angle if gate is rotation gate.
+            phi    (float) - Rotation angle if gate is rotation gate.
             factor (float) - Factor to be added to gate.
         """
         if q2 != None:
-            to_be_apended = get_gate(gate,q1,q2,phi,factor) # in gates.py
+            gate = get_gate(gate,q1,q2,phi) # in gates.py
+            gate.factor *= factor
         else:
-            to_be_appended = gate
-        self.register[q1].apply(to_be_appended)
+            gate.factor *= factor
+            self.qubits[q1].apply(gate,q1,phi=phi)
+            self.identity_layer(q1)
 
     def __str__(self):
-        return Printer().print_circuit(self,eco=eco_print)
+        self.update_control_list()
+        return Printer().print_circuit(self,eco=self.eco_print)
+
+    def __repr__(self):
+        if self.factor == 1:
+            return str(self.qubits)
+        return str(self.factor)+'*'+str(self.qubits)
 
     def __eq__(self,other):
         if isinstance(other,QuantumCircuit):
-            self.defactor()
-            other.defactor()
-            if self.factor == other.factor:
-                print('factor equal',self.factor,other.factor)
-            else:
-                print('factor Not equal',self.factor,other.factor)
-            if self.register == other.register:
-                print('register equal',self.register,other.register)
-            else:
-                print('register Not equal',self.register,other.register)
-            if self.register == other.register and self.factor == other.factor:
+            if self.n == other.n: # Same amount of qubits
+                self.defactor()
+                other.defactor()
+                if self.factor == other.factor:
+                    for i in range(self.n):
+                        if self.qubits[i] != other.qubits[i]:
+                            return False
+                    return True
+        return False
+
+    def equal_to(self,other):
+        """
+        Check if two circuits are equal, ignore factor.
+        """
+        if isinstance(other,QuantumCircuit):
+            if self.n == other.n: # Same amount of qubits
+                #self.defactor()
+                #other.defactor()
+                for i in range(self.n):
+                    if self.qubits[i] != other.qubits[i]:
+                        return False
                 return True
         return False
+
+
+    def __add__(self,other):
+        assert isinstance(other,QuantumCircuit)==True
+        assert self.n == other.n
+        assert self.factor == other.factor
+        for qbit1,qbit2 in zip(self.qubits,other.qubits):
+            qbit1.circ += qbit2.circ
+        self.control_list += other.control_list
+        return self
+
+    def __len__(self):
+        return len(self.qubits)
+
+    def __iter__(self):
+        return iter(self.qubits)
+
+    def __getitem__(self,i):
+        if i > self.n:
+            raise ValueError('Qubit {} not available in register with {} qubits.'.format(i,self.n))
+        return self.qubits[i]
                 
     def defactor(self):
-        self.register.defactor()
-        self.factor *= self.register.factor
-        self.register.factor = 1
+        """
+        Defactor all qubits to self.factor.
+        """
+        for i in range(self.n):
+            # Defactor qubit
+            self[i].defactor() 
+            # Add to circuit factor
+            self.factor *= self[i].factor
+            self[i].factor = 1
+
+    def append(self,qbit,check_name=True):
+        """
+        Append a qbit to register.
+
+        Input:
+            qbit (Qubit)      - Qubit to be appended
+            check_name (bool) - Changes Qubit.name to its 
+                                position in register.
+        """
+        if check_name:
+            qbit.name = str(self.n)    
+        self.qubits.append(qbit)
+        self.n += 1
 
     def copy(self):
         return deepcopy(self)
 
     def gate_optimization(self):
-        self.register.optimize()
+        self.squeeze()
 
     def remove_identity(self):
-        for i in range(self.register.n):
-            self.register[i].remove_identity()
+        for i in range(self.n):
+            self[i].remove_identity()
 
-    def optimize(self):
-        self.check_ladder()
-    
-    def transform_ladder_operators(self):
-        self.gate_optimization()
-        info = self.register.check_ladder()
-        num = 0 # Number of new 
-        each_ladder = []
-        for elem in info:
-            i = elem[0]
-            for j in elem[1]:
-                num += 1
-                each_ladder.append([i,j])
-        copies = [self.copy() for i in range(2**num)]
-        perms = get_permutations(num)
-        assert len(copies) == len(perms)
-        for perm,circ in zip(perms,copies):
-            for j,gate in enumerate(perm):
-                qbit,ind = each_ladder[j]
-                gate.factor *= circ.register[qbit].circ[ind].factor
-                if isinstance(circ.register[qbit].circ[ind],Creation)\
-                        and isinstance(gate,Y):
-                    gate.factor *= -1
-                circ.register[qbit].circ[ind] = gate
-        for circ in copies:
-            circ.gate_optimization()
-            circ.defactor()
-        unique = [copies[0]]
-        for circ1 in copies[1:]:
-            check = False
-            for circ2 in unique:
-                if circ1.register == circ2.register:
-                    circ2.factor += circ1.factor
-                    check = True
-                    break
-            if not check:
-                unique.append(circ1)
-        return unique
-        
-    def insert_one_body_operator(self,h,i,a):
+    def to_exponent(self):
+        paulistring = ''
+        qbit_list = []
+        factor = self.factor
+        for i,qbit in enumerate(self.qubits):
+            assert len(qbit) <= 1 # for now?
+            if len(qbit) == 1:
+                paulistring += qbit[0].char.upper()
+                qbit_list.append(i)
+        self.make_empty()
+        self.insert_pauli_string([paulistring,qbit_list,factor],exp=True)
+        return self
+
+    def make_empty(self):
+        self.factor = 1
+        self.qubits = [Qubit(name=str(i)) for i in range(self.n)]
+        self.control_list = []
+
+    def all_empty(self):
         """
-        Insert one-body second quantized operator on form:
-            <i|h|a> a_a^\dagger a_i
-
-        Input:
-            i (int)   - Orbital to annihilate
-            a (int)   - Orbital to create
-            h (float) - Matrix element
+        Check if all qubits have no gates.
         """
-        self.register.add_annihilation(i)
-        self.register.add_creation(a)
-        self.factor *= h
+        check = True
+        for b in self.qubits:
+            if not b.is_empty():
+                check = False
+        return check
 
-    def insert_two_body_operator(self,v,i,j,a,b):
-        """
-        Insert two-body second quantized operator on form:
-            <ij|v|ab> a_a^\dagger a_b^\dagger a_j a_i
-
-        Input:
-            i (int)   - Orbital to annihilate
-            j (int)   - Orbital to annihilate
-            a (int)   - Orbital to create
-            b (int)   - Orbital to create
-            v (float) - Matrix element
-        """
-        self.register.add_annihilation(i)
-        self.register.add_annihilation(j)
-        self.register.add_creation(b)
-        self.register.add_creation(a)
-        self.factor *= v
-
-    def to_qiskit(self,qc=None,qb=None,cb=None):
-        if qc == None and qb == None and cb == None:
-            qb = qk.QuantumRegister(self.n_qubits)
-            cb = qk.ClassicalRegister(self.n_qubits)
-            qc = qk.QuantumCircuit(qb,cb)
-        
-        for i in range(self.n_qubits):
-            gate = self.mat[i].circ[j]
-            if not isinstance(gate,I):
-                qc.append(gate.get_qiskit(),[i],[])
-            else:
-                ctrl,targ = elem.get_connections()
-                qc.append(elem.get_qiskit(),[ctrl,targ],[])
-        return qc,qb,cb

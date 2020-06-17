@@ -19,24 +19,21 @@ class Gate:
             if type(self) == type(other)\
                     and self.factor == other.factor:
                 return True
-            else:
-                return False
-        else:
-            return False
+        return False
 
     def __mul__(self,other):
         if isinstance(other,(int,float,complex)):
             self.factor *= other
             return self
-        else:
-            raise ValueError('Can not multiply instance {} with instance {}'.format(type(self),type(other)))
+        #else:
+        #    raise ValueError('Can not multiply instance {} with instance {}'.format(type(self),type(other)))
         
     def __rmul__(self,other):
         if isinstance(other,(int,float,complex)):
             self.factor *= other
             return self
-        else:
-            raise ValueError('Can not multiply instance {} with instance {}'.format(type(self),type(other)))
+        #else:
+        #    raise ValueError('Can not multiply instance {} with instance {}'.format(type(self),type(other)))
 
     def __neg__(self):
         self.factor *= -1
@@ -44,3 +41,9 @@ class Gate:
 
     def __repr__(self):
         return self.char
+
+
+    def is_identity(self):
+        if self.char == 'I':
+            return True
+        return False

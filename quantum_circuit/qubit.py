@@ -1,5 +1,4 @@
-from quantum_circuit.gates import Gate,I
-from quantum_circuit.gates.ladder import Creation,Annihilation
+#from quantum_circuit.gates import Gate,I,Creation,Annihilation
 
 class Qubit:
     def __init__(self,name='q'):
@@ -16,6 +15,15 @@ class Qubit:
 
     def __repr__(self):
         return str(self.circ)
+
+    def __getitem__(self,i):
+        return self.circ[i]
+
+    def __iter__(self):
+        return iter(self.circ)
+
+    def __len__(self):
+        return len(self.circ)
 
     def __eq__(self,other):
         if isinstance(other,Qubit):
@@ -34,43 +42,17 @@ class Qubit:
     def remove_identity(self):
         self.defactor()
         for i in reversed(range(len(self.circ))):
-            if isinstance(self.circ[i],I):
+            if self.circ[i].is_identity():
                 self.factor *= self.circ[i].factor
                 self.circ.pop(i)
 
 
-    def apply(self,gate,i=None):
+    def apply(self,gate,i=None,phi=None):
         if i == None:
             self.circ.append(gate)
         else:
-            self.circ.insert(0,gate)
+            self.circ.insert(i,gate)
             
-    def optimize(self):
-        if len(self.circ) > 0:
-            new = [self.circ[0]]
-            for i in range(1,len(self.circ)):
-                gate1 = new[-1]
-                gate2 = self.circ[i]
-                gate = gate1*gate2
-                if isinstance(gate,Gate):
-                    new[-1] = gate
-                elif isinstance(gate,tuple):
-                    new[-1] = gate[0]
-                    new.append(gate[1])
-                elif isinstance(gate,list):
-                    # Dont transform
-                    new.append(gate2)
-                else:
-                    print(gate,gate1,gate2,new,self.circ,self.name)
-                    raise ValueError('WRONG')
-            factor = 1
-            for i in reversed(range(len(new))):
-                if isinstance(new[i],I):
-                    factor *= new[i].factor
-                    new.pop(i)
-            self.circ = new
-            self.factor *= factor
-
     def defactor(self):
         for i in range(len(self.circ)):
             # Add to qubit factor
@@ -78,22 +60,9 @@ class Qubit:
             # Defactor gate
             self.circ[i].factor = 1
 
-    def get_all_ladder(self):
-        """
-        Returns position of all ladder operations on qubit.
-        """
-        num_ladder = 0
-        ladder_operators = []
-        for i,gate in enumerate(self.circ):
-            if isinstance(gate,(Creation,Annihilation)):
-                ladder_operators.append(i)
-            else:
-                continue
-        return ladder_operators
-
     def is_empty(self):
         check = True
         for gate in self.circ:
-            if not isinstance(gate,I):
+            if not gate.is_identity():
                 check = False
         return check
