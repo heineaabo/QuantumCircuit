@@ -19,6 +19,10 @@ class Hamiltonian:
         """
         self.n = n
         self.l = l
+        
+        self.circuit = []
+        self._circuit_list = None
+
         self.h = one_body
         self.v = two_body
         if add_spin:
@@ -262,5 +266,3 @@ class PairingHamiltonian(Hamiltonian):
                 self._circuit_list.group_two_body_IBM()
             else:
                 self._circuit_list.group_two_body()
-
-
