@@ -4,7 +4,7 @@ setup(name="Quantum Circuit",
         version="0.1", 
         author ="Heine Olsson Aabø",
         description="Optimization tool for quantum circuits",
-        url="https://https://github.com/heineaabo/QuantumCircuitOptimizer",
+        url="https://https://github.com/heineaabo/QuantumCircuit",
         packages=find_packages()
         )
 
